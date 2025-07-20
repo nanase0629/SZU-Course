@@ -1,0 +1,17 @@
+//Symbol Name		Page Address
+//----------------	------------
+//	COUNT                   305F
+//	DDR                     3011
+//	DELAY                   3059
+//	DSR                     3010
+//	KBDR                    300F
+//	KBSR                    300E
+//	Line1                   3016
+//	Line2                   3039
+//	REP                     305B
+//	SaveR1                  3060
+//	change                  3012
+//	locatex0180             3014
+//	newlocate               3015
+//	print                   3006
+//	sp                      3013

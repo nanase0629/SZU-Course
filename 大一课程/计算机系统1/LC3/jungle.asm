@@ -1,0 +1,13 @@
+.ORIG x3000;
+NOT R4,R3;
+ADD R4,R4,#1;
+ADD R5,R2,R4;
+BRz deng;
+BRn xiao;
+BRp da;
+xiao ADD R5,R3,#0;
+TRAP x25;
+da ADD R5,R2,#0;
+TRAP x25;
+deng TRAP x25;
+.END;

@@ -1,0 +1,22 @@
+//Symbol Name		Page Address
+//----------------	------------
+//	A                       3043
+//	Ad                      3033
+//	Aend                    3046
+//	Ascore                  3041
+//	B                       3044
+//	Bend                    3047
+//	Bscore                  3042
+//	EEnd                    3039
+//	FINE                    303C
+//	LOOP1                   3004
+//	LOOP2                   300C
+//	LOOP3                   300F
+//	LOOP4                   3024
+//	NEXT1                   300B
+//	NEXT2                   301F
+//	NEXT3                   301D
+//	Rorder                  301B
+//	n                       3045
+//	orderscore              3040
+//	score                   303F

@@ -1,0 +1,24 @@
+//Symbol Name		Page Address
+//----------------	------------
+//	DDR                     203A
+//	DSR                     2039
+//	KBDR                    2038
+//	KBSR                    2037
+//	START                   200C
+//	START2                  2019
+//	begin                   2014
+//	change                  203B
+//	end                     2023
+//	enter                   2036
+//	next                    2021
+//	saveR0                  202E
+//	saveR1                  202F
+//	saveR2                  2030
+//	saveR3                  2031
+//	saveR4                  2032
+//	saveR5                  2033
+//	saveR6                  2034
+//	saveR7                  2035
+//	show                    2017
+//	stringsave              203C
+//	ten                     202D
