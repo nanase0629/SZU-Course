@@ -1,0 +1,172 @@
+排序算法分析伪代码
+
+1.选择排序
+Selectsort(a)
+	n = a.length
+	for i = 0 to n-2 
+		Min = 1e9
+		for j = i+1 to n-1
+			if Min > a[j] then
+				Min = a[j]
+				r = j
+		if a[i] > Min then
+			exchange a[i] with a[r]
+
+
+2.冒泡排序
+Bubblesort(a)
+	n = a.length
+	for i = 0 to n-2
+		for j = 0 to n-i-2
+			if a[j] > a[j+1] then
+				exchange a[j] with a[j+1]
+
+优化的冒泡排序：
+Bubblesortbetter(a)
+	right = r
+	left = 0
+	while left<right
+		for i = left+1 to right-1
+			if a[i]<a[i-1] then
+				exchange a[i] with a[i-1]
+		right = right-1
+		for i = right-1 to left+1
+			if a[i]<a[i-1]
+				exchange a[i] with a[i-1]
+		left = left+1
+	
+
+3.插入排序
+Insertsort(a)
+	n = a.length
+	for j = 1 to n-1
+		key =  a[j]
+		i = j-1
+		while i>0 and a[i]>key
+			a[i+1] = a[i]
+			i = i-1
+		a[i+1] = key
+
+优化的插入排序
+Insertsort(a)
+	n = a.length
+	for j = 1 to n-1
+		key =  a[j]
+		i = j-1
+		while i>0 and a[i]>key
+			a[i+1] = a[i]
+			i = i-1
+		if i+1! = j then
+			a[i+1] = key
+
+
+4.归并排序
+merge(start,mid,end,a)
+	n = a.length
+	pos = start
+	l = start
+	r = mid+1
+	while l<=mid and r<=end
+		if a[l]<a[r] then
+			tmp[pos++] = a[l++]
+		else tmp[pos++] = a[r++]
+	while l<=mid
+		tmp[pos++] = a[l++]
+	while r<=end
+		tmp[pos++] = a[r++]
+	for i=start to end
+		a[i] = tmp[i]
+		
+mergesort(left,right,a)
+	n = a.length
+	if left<right
+		mid = (left+right)/2
+		mergesort(left,mid,a)
+		mergesort(mid+1,end,a)
+		merge(left,mid,right,a)
+
+
+5.快速排序
+Quicksort(l,r,a)
+	n = a.length
+	if l<r then
+		base = a[l]
+		left = l
+		right = r
+		while left<right
+			while base<=a[right] and left<right
+				right--
+			a[left]=a[right]
+			while base>=a[left] and left<right
+				left++
+			a[right] = a[left]
+		a[left] = base
+		Quicksort(l,left-1,a)
+		Quicksort(left+1,r,a)_
+
+
+
+TOP 问题
+
+1.冒泡排序
+bubbleTop(a)
+	n = a.length
+	for i = 0 to 9
+		for j = n-1 to i+1
+			if a[j] > a[j+1] then
+				exchange a[j] with a[j+1]
+
+2.计数排序
+countTop(a)
+	Max = 0
+	Min = 1e9
+	for i = 0 to n-1
+		if a[i]>Max then
+			Max = a[i]
+		if a[i]<Min then
+			Min = a[i]
+	range = Max-Min+1
+	for i = 0 to n
+		p[a[i]-Min]++
+	find = 0
+	for i = range-1 to 0
+		while p[i]>0
+			if find >=10 then
+				break
+			a[find++] = i+Min
+			p[i]--
+		if find>=10 then
+			break
+
+
+3.堆排序
+adjust(start, end, a)
+	tmp = a[start]
+   	for i = 2 * start + 1 to end-1 step i = i * 2 + 1
+		if i < end - 1 and a[i] > a[i + 1]
+			i ++
+		if a[i] < tmp then
+			a[start] = a[i]
+			start = i
+		else break
+	a[start] = tmp
+
+buildheap(len,a)
+	for i = len/2-1 to 0
+		adjust(i,len,a)
+
+heapTop(a)
+	buildheap(10,a)
+	for i = 10 to n-1 
+		if a[i]>a[0] then
+			a[0] = a[i]
+			adjust(0,10,a)
+
+
+
+
+
+
+
+
+

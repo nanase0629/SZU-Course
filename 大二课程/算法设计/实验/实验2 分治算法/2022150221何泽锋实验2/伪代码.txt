@@ -1,0 +1,76 @@
+//伪代码
+distance(a,b)
+	return sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
+
+//暴力法
+Forceresult(p)
+	Min=0x7fffffff
+	for i=0 to n-1
+		for j=i+1 to n-1
+			tmp = distance(p[i],p[j])
+			if Min>tmp then
+				Min=tmp
+	return Min
+
+//快排分治
+Merge(p,left,right)
+	d=0x7ffffff
+	if left == right then
+		return d
+	if left+1==right then
+		return distance(p[left],p[right])
+	mid = (left+right)/2
+	d_l = merge(p,left,mid)
+	d_r = merge(p,mid+1,right)
+	d = min(d_l,d_r)
+	for i=left to right
+		if fabs(p[mid].x-p[i].x)<d then
+			temp[k++]=i
+	sort(temp,temp+k,cmps)
+	for i=0 to k-1 
+		for j=i+1 to k-1
+			if  p[temp[j]].y - p[temp[i]].y < d then
+				d_m = distance(p[temp[i]], p[temp[j]])
+				if d>d_m then
+					d = d_m
+	return d
+
+//归并排序
+merge_sort(start, mid, end) 
+	pos = start
+	l = start
+	r = mid + 1
+	while l <= mid and r <= end
+		if p[l].y <= p[r].y then
+			pp[pos++] = p[l++]
+		else 
+			pp[pos++] = p[r++]
+	while l <= mid
+		pp[pos++] = p[l++]
+	while r <= end
+		pp[pos++] = p[r++]
+	for i = start to end
+		p[i] = pp[i]
+
+//归并分治
+Merge2( p, left, right)
+	d = 0x7ffffff
+	if left == right then
+		return d
+	if left+1 == right then
+		merge_sort(left,left,right)
+		return distance( p[left], p[right])
+	mid = (left+right)/2
+	d_l = merge( p, left, mid)
+	d_r = merge( p, mid+1, right)
+	merge_sort(left,mid,right);
+	d = min( d_l, d_r)
+	for i = left to right
+		if abs(p[mid].x-p[i].x)>=d then
+			continue;
+		for j = i+1 to right
+			if  p[j].y - p[i].y < d then
+				d_m = distance( p[i],  p[j])
+				if d > d_m then
+					d = d_m
+	return d
