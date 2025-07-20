@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宋史探微 - 宋代历史RAG系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+</head>
+<body>
+    <!-- 侧边栏 -->
+    <aside id="sidebar">
+        <!-- 标签页切换按钮 -->
+        <div class="tab-buttons">
+            <button id="history-tab-btn" class="tab-btn active">
+                <i class="fas fa-history"></i> 历史记录
+            </button>
+            <button id="knowledge-tab-btn" class="tab-btn">
+                <i class="fas fa-book"></i> 知识库
+            </button>
+            <button id="toggle-sidebar-btn">«</button>
+        </div>
+
+        <!-- 历史记录面板 -->
+        <div id="history-panel" class="tab-panel active">
+            <div class="sidebar-header">
+                <button id="new-chat-btn" class="new-chat-btn">
+                    <i class="fas fa-plus"></i> 新建对话
+                </button>
+                <button id="edit-mode-btn" class="tab-btn" style="margin-left:8px;">编辑</button>
+            </div>
+            <div id="batch-actions" style="display:none;gap:8px;margin-bottom:10px;">
+                <button id="select-all-btn" class="tab-btn">全选</button>
+                <button id="delete-selected-btn" class="tab-btn" style="background:#f87171;color:#fff;">批量删除</button>
+                <button id="cancel-edit-btn" class="tab-btn" style="background:#22344a;color:#aaa;">取消</button>
+            </div>
+            <div id="history-switch-tip" style="min-height:24px;color:#fbbf24;font-size:0.98rem;margin-bottom:4px;"></div>
+            <div class="conversations-container">
+                <div id="conversations-list" class="conversations-list">
+                    <!-- 对话列表将通过JavaScript动态添加 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 知识库面板 -->
+        <div id="knowledge-panel" class="tab-panel">
+            <div id="knowledge-controls">
+                <div class="upload-controls">
+                    <label for="file-upload" class="upload-label">
+                        <i class="fas fa-upload"></i> 上传文件
+                    </label>
+                    <input type="file" id="file-upload" accept=".pdf,.txt,.md,.doc,.docx,.json" multiple>
+                    <button id="refresh-kb-btn">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+                <div id="kb-edit-controls">
+                    <button id="select-all-kb-btn" class="tab-btn">全选</button>
+                    <button id="delete-selected-kb-btn" class="tab-btn" style="background:#f87171;color:#fff;">删除选中</button>
+                    <button id="cancel-kb-edit-btn" class="tab-btn" style="background:#22344a;color:#aaa;">取消</button>
+                </div>
+                <div id="kb-normal-controls">
+                    <button id="edit-kb-btn" class="tab-btn">编辑</button>
+                </div>
+            </div>
+            <div id="kb-upload-loading" style="display:none;text-align:center;margin:10px 0;">
+                <i class="fas fa-spinner fa-spin"></i> 正在上传与向量化，请稍候...
+            </div>
+            <div id="knowledge-section"></div>
+        </div>
+    </aside>
+
+    <!-- 悬浮打开按钮 -->
+    <button id="open-sidebar-btn">打开</button>
+
+    <!-- 主内容区外层 -->
+    <div class="main-outer">
+        <div class="main-inner" id="main-inner">
+            <header>
+                <div class="logo">
+                    <i class="fas fa-landmark logo-icon"></i>
+                    <h1>宋史探微</h1>
+                </div>
+                <p class="subtitle">基于RAG技术的宋代历史智能问答系统 · 检索与生成模型驱动</p>
+            </header>
+
+            <section class="input-section">
+                <div class="input-header">
+                    <i class="fas fa-question-circle section-icon"></i>
+                    <h2>输入您关于宋代历史的问题</h2>
+                </div>
+                <p>请输入关于宋代历史、文化、政治、经济等方面的问题，系统将通过RAG技术为您提供专业解答。</p>
+                <div class="input-container">
+                    <div class="chat-container">
+                        <div id="chat-messages">
+                            <div class="chat-message assistant">
+                                您好！我是宋代历史助手。请问您想了解宋代历史的哪个方面？例如政治、经济、文化、军事或其他具体内容？
+                            </div>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="text" id="question-input" placeholder="请输入您的问题...">
+                            <button id="ask-button">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="custom-url-container">
+                    <input type="text" id="custom-url-input" placeholder="可选：指定一个网页URL作为参考（如 https://...）">
+                </div>
+                <div class="config-options">
+                    <label>
+                        <input type="checkbox" id="enable-web-search" checked> 启用联网搜索
+                    </label>
+                    <div class="iterations-control">
+                        <label>递归检索轮数：</label>
+                        <select id="max-iterations">
+                            <option value="1">1轮</option>
+                            <option value="2" selected>2轮</option>
+                            <option value="3">3轮</option>
+                        </select>
+                    </div>
+                    <div class="search-mode-control">
+                        <label for="search-mode">联网模式：</label>
+                        <select id="search-mode">
+                            <option value="quick" selected>快捷联网</option>
+                            <option value="deep">深度联网</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <section class="progress-section">
+                <div class="progress-header">
+                    <i class="fas fa-tasks section-icon"></i>
+                    <h2>处理进度</h2>
+                </div>
+                <p>系统处理流程分为四个阶段，当前进度将实时显示：</p>
+
+                <div class="progress-steps">
+                    <div class="progress-bar" id="progress-bar"></div>
+
+                    <div class="step active" id="step-1">
+                        <div class="step-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="step-text">问题接收</div>
+                    </div>
+
+                    <div class="step" id="step-2">
+                        <div class="step-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div class="step-text">文档检索</div>
+                    </div>
+
+                    <div class="step" id="step-3">
+                        <div class="step-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="step-text">生成答案</div>
+                    </div>
+
+                    <div class="step" id="step-4">
+                        <div class="step-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="step-text">冲突检测</div>
+                    </div>
+                </div>
+
+                <div class="progress-content active" id="content-1">
+                    <div class="content-header">
+                        <i class="fas fa-info-circle"></i>
+                        <h3>问题接收状态</h3>
+                    </div>
+                    <div class="content-body">
+                        <p>等待用户输入问题...</p>
+                    </div>
+                </div>
+
+                <div class="progress-content" id="content-2">
+                    <div class="content-header">
+                        <i class="fas fa-search"></i>
+                        <h3>检索结果</h3>
+                    </div>
+                    <div class="content-body">
+                        <p>检索模块正在从宋代历史文档库中查找相关内容...</p>
+                    </div>
+                </div>
+
+                <div class="progress-content" id="content-3">
+                    <div class="content-header">
+                        <i class="fas fa-robot"></i>
+                        <h3>生成答案</h3>
+                    </div>
+                    <div class="content-body">
+                        <p>生成模型正在接收处理后的内容，准备生成最终答案...</p>
+                    </div>
+                </div>
+
+                <div class="progress-content" id="content-4">
+                    <div class="content-header">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>冲突检测</h3>
+                    </div>
+                    <div class="content-body">
+                        <p>正在进行冲突检测，请稍候...</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="result-section">
+                <div class="result-header">
+                    <i class="fas fa-lightbulb section-icon"></i>
+                    <h2>分析结果</h2>
+                </div>
+                <div class="result-container">
+                    <div class="result-placeholder" id="result-placeholder">
+                        <i class="fas fa-scroll"></i>
+                        <p>答案将显示在此处</p>
+                    </div>
+                    <div class="result-content" id="result-content">
+                        <div class="answer-section"></div>
+                        <div class="sources-section">
+                            <h3>参考来源</h3>
+                            <div class="sources-list"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="footer">
+                <p>宋代历史RAG系统 &copy; 2025 | 本系统采用检索和大模型技术，结合爬虫获取知识库</p>
+            </footer>
+        </div>
+    </div>
+</body>
+</html>

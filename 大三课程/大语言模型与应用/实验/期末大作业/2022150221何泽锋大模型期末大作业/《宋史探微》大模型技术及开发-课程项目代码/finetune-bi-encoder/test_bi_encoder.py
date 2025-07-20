@@ -1,0 +1,118 @@
+import json
+from sentence_transformers import SentenceTransformer, util
+import torch
+import numpy as np
+import os
+import argparse
+import pandas as pd
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--mode', choices=['easy', 'hard'], default='easy', help='选择评测集类型：easy（默认，data/test.jsonl）或 hard（data/test_hard_neg.jsonl）')
+args = parser.parse_args()
+
+if args.mode == 'easy':
+    test_file = 'data/test.jsonl'
+else:
+    test_file = 'data/test_hard_negatives.jsonl'
+
+# 读取测试集
+questions = []
+answers = []
+if args.mode == 'easy':
+    with open(test_file, 'r', encoding='utf-8') as f:
+        for line in f:
+            obj = json.loads(line)
+            questions.append(obj['question'].strip())
+            answers.append(obj['answer'].strip())
+else:
+    hard_neg_pool = []
+    with open(test_file, 'r', encoding='utf-8') as f:
+        for line in f:
+            obj = json.loads(line)
+            questions.append(obj['question'].strip())
+            answers.append(obj['answer'].strip())
+            hards = obj.get('hard_negatives', [])
+            for hn in hards:
+                hard_neg_pool.append(hn.strip())
+    answers.extend(hard_neg_pool)
+
+# embedding缓存路径
+EMB_CACHE_DIR = 'embeddings_cache'
+os.makedirs(EMB_CACHE_DIR, exist_ok=True)
+
+def get_emb_path(model_path, prefix):
+    return os.path.join(EMB_CACHE_DIR, f'emb_cache_{os.path.basename(model_path)}_{prefix}_{args.mode}.npy')
+
+def get_embeddings(model_path, model, texts, prefix):
+    emb_path = get_emb_path(model_path, prefix)
+    if os.path.exists(emb_path):
+        print(f'从{emb_path}加载embedding...')
+        return torch.tensor(np.load(emb_path))
+    else:
+        print(f'计算embedding并保存到{emb_path}...')
+        embs = model.encode(texts, batch_size=32, convert_to_tensor=True, show_progress_bar=True)
+        np.save(emb_path, embs.cpu().numpy())
+        return embs
+
+# 定义评估函数
+def evaluate(model_path, questions, answers):
+    model = SentenceTransformer(model_path)
+    question_embs = get_embeddings(model_path, model, questions, 'q')
+    answer_embs = get_embeddings(model_path, model, answers, 'a')
+    N = len(questions)
+    rank_first_relevant = []
+    recall_at = {k: 0 for k in range(1, 6)}  # Recall@1-5
+    mrr_at = {k: 0.0 for k in range(1, 6)}   # MRR@1-5
+    for idx, (q, q_emb) in enumerate(zip(questions, question_embs)):
+        scores = util.cos_sim(q_emb, answer_embs)[0]
+        sorted_indices = torch.argsort(scores, descending=True)
+        # 正样本排名（从0开始）
+        rank = (sorted_indices == idx).nonzero(as_tuple=True)[0].item()
+        rank_first_relevant.append(rank + 1)  # 记录排名（从1开始）
+        for k in range(1, 6):
+            if rank < k:
+                recall_at[k] += 1
+                mrr_at[k] += 1.0 / (rank + 1)
+    # 计算均值
+    recall_at = {f'Recall@{k}': round(recall_at[k]/N, 4) for k in recall_at}
+    mrr_at = {f'MRR@{k}': round(mrr_at[k]/N, 4) for k in mrr_at}
+    mean_rank = round(np.mean(rank_first_relevant), 2)
+    median_rank = int(np.median(rank_first_relevant))
+    return {
+        'MeanRankFirstRelevant': mean_rank,
+        **recall_at,
+        **mrr_at
+    }
+
+# 微调后模型
+finetuned_model_path = './model/bge-large-zh-v1.5-finetuned'
+finetuned_metrics = evaluate(finetuned_model_path, questions, answers)
+print('微调后模型指标:', finetuned_metrics)
+
+# 未微调模型
+base_model_path = './model/bge-large-zh-v1.5'
+base_metrics = evaluate(base_model_path, questions, answers)
+print('未微调模型指标:', base_metrics)
+
+# 保存对比结果到文件
+result = {
+    'finetuned': finetuned_metrics,
+    'base': base_metrics
+}
+with open('result_compare.json', 'w', encoding='utf-8') as f:
+    json.dump(result, f, ensure_ascii=False, indent=2)
+print('对比结果已保存到 result_compare.json')
+
+# 保存总和性能到csv，文件名根据mode区分
+csv_name = f'result_compare_all_{args.mode}.csv'
+all_metrics = []
+for model_name, metrics in result.items():
+    row = {'model': model_name}
+    row.update(metrics)
+    all_metrics.append(row)
+df = pd.DataFrame(all_metrics)
+if os.path.exists(csv_name):
+    df.to_csv(csv_name, mode='a', index=False, encoding='utf-8-sig', header=False)
+else:
+    df.to_csv(csv_name, index=False, encoding='utf-8-sig', header=True)
+print(f'总和性能已保存到 {csv_name}') 

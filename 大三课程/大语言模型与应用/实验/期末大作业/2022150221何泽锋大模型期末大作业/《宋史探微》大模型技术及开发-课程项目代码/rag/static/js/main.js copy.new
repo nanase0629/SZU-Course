@@ -1,0 +1,850 @@
+// 全局变量
+let chatState = {
+    isActive: false,
+    messages: [],
+    currentQuestion: '',
+    contexts: []
+};
+let currentConversationId = null;
+let conversations = [];
+let progressMessages = [null, '', '', '', ''];
+let maxStepReached = 0;
+let currentStep = 0;
+let finalAnswer = '';
+let lastQuestion = '';
+let lastAnswer = '';
+let lastCreatedAt = '';
+let selectedKbFiles = new Set();
+let kbEditMode = false;
+let editMode = false;
+let selectedIds = [];
+let sidebarCollapsed = false;
+
+// 辅助函数
+function cleanWebPageNoise(md) {
+    if (!md) return '';
+    // 1. 移除所有单独一行的标题（#、##、###等）
+    md = md.replace(/^#{1,6} .+$/gm, '');
+    // 2. 移除常见栏目/导航/广告等短行
+    const navWords = [
+        '首页', '专题', '百科', '再现历史', '生活', '说剧', '英文版', '历史话题', 'MILITARY TOPIC', '探寻历史风云旧事',
+        '人物', '影视', '解梦', '百家姓', '成语', '明星', '历史', '教育', '三国', '新闻', '手机版'
+    ];
+    navWords.forEach(word => {
+        // 移除单独一行的栏目词
+        md = md.replace(new RegExp('^' + word + '\\s*$', 'gm'), '');
+    });
+    // 3. 移除全大写的短行
+    md = md.replace(/^[A-Z\\s]{3,30}$/gm, '');
+    // 4. 移除"|"分隔的导航行
+    md = md.replace(/^[\\w\\u4e00-\\u9fa5\\s\\|]{5,40}$/gm, function(line) {
+        // 只保留含有"|"且全为栏目词的行
+        if (line.includes('|')) return '';
+        return line;
+    });
+    // 5. 移除多余空行
+    md = md.replace(/\\n{2,}/g, '\\n\\n');
+    // 6. 移除开头和结尾的空白
+    md = md.trim();
+    return md;
+}
+
+function cleanMarkdownHeadings(md) {
+    return md.replace(/^#{1,2} (.*)$/gm, '### $1');
+}
+
+function truncateMarkdownContent(md, maxLen = 400) {
+    if (!md) return '';
+    if (md.length <= maxLen) return marked.parse(md);
+    const short = md.slice(0, maxLen);
+    const id = 'expand-' + Math.random().toString(36).slice(2, 10);
+    return `
+        <div>
+            <div id="${id}-short">${marked.parse(short)}<span style="color:#38bdf8;cursor:pointer;" onclick="document.getElementById('${id}-short').style.display='none';document.getElementById('${id}-full').style.display='block';">[展开]</span></div>
+            <div id="${id}-full" style="display:none;">${marked.parse(md)}<span style="color:#38bdf8;cursor:pointer;" onclick="document.getElementById('${id}-full').style.display='none';document.getElementById('${id}-short').style.display='block';">[收起]</span></div>
+        </div>
+    `;
+}
+
+// 主要功能函数
+function updateProgress(step, message) {
+    currentStep = step;
+    if (step > maxStepReached) maxStepReached = step;
+    const progressBar = document.getElementById('progress-bar');
+    progressBar.style.width = `${step * 25}%`;
+
+    const steps = document.querySelectorAll('.step');
+    steps.forEach((s, i) => {
+        if (i < step - 1) {
+            s.classList.add('completed');
+            s.classList.remove('active');
+        } else if (i === step - 1) {
+            s.classList.add('active');
+            s.classList.remove('completed');
+        } else {
+            s.classList.remove('active', 'completed');
+        }
+    });
+
+    const contents = document.querySelectorAll('.progress-content');
+    contents.forEach((c, idx) => {
+        c.classList.remove('active');
+        if (idx === step - 1) {
+            c.classList.add('active');
+            c.querySelector('.content-body').innerHTML = message;
+        } else if (progressMessages[idx + 1]) {
+            c.querySelector('.content-body').innerHTML = progressMessages[idx + 1];
+        }
+    });
+}
+
+function showStepContent(stepNumber) {
+    const steps = document.querySelectorAll('.step');
+    const contents = document.querySelectorAll('.progress-content');
+    const progressBar = document.getElementById('progress-bar');
+
+    steps.forEach((step, index) => {
+        if (index === stepNumber - 1) {
+            step.classList.add('active');
+        } else {
+            step.classList.remove('active');
+        }
+        if (index < stepNumber - 1) {
+            step.classList.add('completed');
+        } else {
+            step.classList.remove('completed');
+        }
+    });
+
+    contents.forEach((content, idx) => {
+        content.classList.remove('active');
+        if (idx === stepNumber - 1) {
+            content.classList.add('active');
+        }
+    });
+
+    progressBar.style.width = `${stepNumber * 25}%`;
+}
+
+async function processQuestion(question) {
+    try {
+        // Step 1: 问题接收
+        progressMessages[1] = `已接收到您的问题：<br><b>${question}</b><br>正在开始处理...`;
+        updateProgress(1, progressMessages[1]);
+        maxStepReached = 1;
+
+        // Step 2: 文档检索
+        const customUrl = document.getElementById('custom-url-input').value.trim();
+        const searchMode = document.getElementById('search-mode').value;
+        const enableWebSearch = document.getElementById('enable-web-search');
+        const maxIterations = document.getElementById('max-iterations');
+
+        const retrievalResponse = await fetch('/api/retrieve', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                question,
+                enable_web_search: enableWebSearch.checked,
+                max_iterations: parseInt(maxIterations.value),
+                custom_url: customUrl,
+                search_mode: searchMode
+            })
+        });
+
+        if (!retrievalResponse.ok) throw new Error('检索失败');
+        const contexts = await retrievalResponse.json();
+        let retrievalContent = "检索到的相关内容：<br><br>";
+        
+        contexts.forEach((ctx, idx) => {
+            let typeLabel = '';
+            if (ctx.type === '指定网页') {
+                typeLabel = `<span style="color:#38bdf8;font-weight:bold;">【指定网页】</span> `;
+            } else if (ctx.type === '网络来源') {
+                typeLabel = `<span style="color:#4ade80;">【联网检索】</span> `;
+            } else {
+                typeLabel = `<span style="color:#fbbf24;">【本地文档】</span> `;
+            }
+
+            let title = ctx.title ? `<b>${ctx.title}</b> ` : '';
+            let url = (ctx.type === '指定网页' || ctx.type === '网络来源') && ctx.url
+                ? `<a href="${ctx.url}" target="_blank" style="color:#38bdf8;text-decoration:underline;">${ctx.url}</a><br>`
+                : '';
+
+            let contentHtml;
+            if (ctx.type === '指定网页') {
+                let cleaned = cleanWebPageNoise(ctx.content || '');
+                cleaned = cleanMarkdownHeadings(cleaned);
+                contentHtml = truncateMarkdownContent(cleaned, 400);
+            } else {
+                contentHtml = marked.parse(ctx.content ? ctx.content.substring(0, 200) : '');
+            }
+
+            retrievalContent += `${idx + 1}. ${typeLabel}${title}${url}${contentHtml}<br><br>`;
+        });
+
+        progressMessages[2] = retrievalContent;
+        updateProgress(2, progressMessages[2]);
+        maxStepReached = 2;
+
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        // Step 3: 生成答案（流式输出）
+        progressMessages[3] = `<b>生成的答案：</b><br><span id='streaming-answer'></span>`;
+        updateProgress(3, progressMessages[3]);
+        maxStepReached = 3;
+
+        const response = await fetch('/api/generate_stream', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question, contexts })
+        });
+
+        const reader = response.body.getReader();
+        let decoder = new TextDecoder();
+        let resultText = '';
+        let streamingAnswer = document.getElementById('streaming-answer');
+        const answerSection = document.querySelector('.answer-section');
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            const chunk = decoder.decode(value, { stream: true });
+            resultText += chunk;
+            if (streamingAnswer) streamingAnswer.innerHTML = marked.parse(resultText);
+            if (answerSection) answerSection.innerHTML = marked.parse(resultText);
+        }
+
+        finalAnswer = resultText;
+        progressMessages[3] = `<b>生成的答案：</b><br>${marked.parse(finalAnswer)}`;
+        updateProgress(3, progressMessages[3]);
+        if (answerSection) answerSection.innerHTML = marked.parse(finalAnswer);
+
+        // Step 4: 冲突检测
+        progressMessages[4] = `<b>冲突检测总结：</b><br><span id='streaming-conflict'>正在等待冲突检测结果...<span class='loading-dots'></span></span>`;
+        updateProgress(4, progressMessages[4]);
+        maxStepReached = 4;
+
+        const conflictResponse = await fetch('/api/conflict_stream', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contexts })
+        });
+
+        const conflictReader = conflictResponse.body.getReader();
+        let conflictDecoder = new TextDecoder();
+        let conflictText = '';
+        let streamingConflict = document.getElementById('streaming-conflict');
+        let firstChunk = true;
+
+        try {
+            while (true) {
+                const { done, value } = await conflictReader.read();
+                if (done) break;
+                const chunk = conflictDecoder.decode(value, { stream: true });
+                conflictText += chunk;
+                if (streamingConflict) {
+                    if (firstChunk) {
+                        streamingConflict.innerHTML = '';
+                        firstChunk = false;
+                    }
+                    streamingConflict.innerHTML = marked.parse(conflictText);
+                }
+            }
+        } catch (e) {
+            console.error('冲突检测流式输出错误:', e);
+            if (streamingConflict) {
+                streamingConflict.innerHTML = '<span style="color:#fbbf24;">⚠️ 冲突检测过程中出现错误，但不会影响最终答案的生成。</span>';
+            }
+            conflictText = '冲突检测过程中出现错误，但不会影响最终答案的生成。';
+        }
+
+        if (streamingConflict && (!conflictText || conflictText.trim() === '')) {
+            streamingConflict.innerHTML = '<span style="color:#38bdf8;">未检测到明显冲突。</span>';
+            conflictText = '未检测到明显冲突。';
+        }
+
+        const result = {
+            answer: finalAnswer,
+            sources: contexts,
+            hasConflicts: /有冲突/.test(conflictText),
+            conflict_reason: conflictText,
+            injected_prompt: ''
+        };
+
+        if (!result || !Array.isArray(result.sources)) {
+            result.sources = [];
+        } else if (Array.isArray(result.sources[0])) {
+            result.sources = result.sources.flat();
+        }
+        result.sources = result.sources.filter(item => item && typeof item === 'object');
+        return result;
+    } catch (error) {
+        throw error;
+    }
+}
+
+function displayResult(result) {
+    try {
+        console.log('displayResult收到的result:', result);
+        if (!result || !Array.isArray(result.sources)) {
+            result.sources = [];
+        } else if (Array.isArray(result.sources[0])) {
+            result.sources = result.sources.flat();
+        }
+        result.sources = result.sources.filter(item => item && typeof item === 'object');
+
+        const resultPlaceholder = document.getElementById('result-placeholder');
+        const resultContent = document.getElementById('result-content');
+        resultPlaceholder.style.display = 'none';
+        resultContent.style.display = 'block';
+
+        // 折叠上一次结果到历史区
+        if (lastQuestion && lastAnswer) {
+            const historySection = document.getElementById('history-section');
+            const historyId = 'history-local-' + Date.now();
+            let createdAt = '';
+            if (lastCreatedAt) {
+                const dateObj = new Date(lastCreatedAt.replace(' ', 'T').replace(/-/g, '/'));
+                createdAt = dateObj.toLocaleString('zh-CN', { hour12: false });
+                if (createdAt.startsWith('时间：')) {
+                    createdAt = createdAt.replace(/^时间：/, '');
+                }
+            }
+
+            const html = `
+                <div class="history-item" style="margin-bottom:8px;">
+                    <div class="history-header" style="cursor:pointer;background:#22344a;padding:10px;border-radius:6px;" onclick="const b=document.getElementById('${historyId}-body');b.style.display=b.style.display==='none'?'block':'none'">
+                        <b>历史提问：</b> ${lastQuestion.replace(/</g,'&lt;').replace(/>/g,'&gt;').slice(0,60)} <span style="color:#38bdf8;">[点击展开/收起]</span>
+                    </div>
+                    <div class="history-body" id="${historyId}-body" style="display:none;background:#1a2533;padding:12px;border-radius:6px;">
+                        <b>问题：</b> ${lastQuestion.replace(/</g,'&lt;').replace(/>/g,'&gt;')}<br><b>答案：</b><br>${marked.parse(lastAnswer||'')}
+                        <div style="color:#888;font-size:0.92em;margin-top:6px;">${createdAt ? '时间：' + createdAt : ''}</div>
+                    </div>
+                </div>
+            `;
+            historySection.insertAdjacentHTML('afterbegin', html);
+        }
+
+        // 记录本次问题和答案
+        lastQuestion = '';
+        lastAnswer = '';
+        if (
+            result.sources &&
+            result.sources.length &&
+            typeof result.sources[0] === 'object' &&
+            result.sources[0] !== null &&
+            'question' in result.sources[0]
+        ) {
+            lastQuestion = result.sources[0].question;
+        } else if (window.currentQuestion) {
+            lastQuestion = window.currentQuestion;
+        }
+        lastAnswer = result.answer || '';
+        lastCreatedAt = result.created_at;
+
+        // Display answer
+        const answerSection = resultContent.querySelector('.answer-section');
+        answerSection.innerHTML = marked.parse(result.answer || '');
+
+        // Display sources
+        const sourcesList = resultContent.querySelector('.sources-list');
+        sourcesList.innerHTML = '';
+        (result.sources || []).forEach(source => {
+            const sourceElement = document.createElement('div');
+            sourceElement.className = 'source-item';
+
+            let typeLabel = '';
+            let icon = '';
+            let urlHtml = '';
+            let title = source.title ? `<b>${source.title}</b><br>` : '';
+
+            if (source.type === '指定网页') {
+                typeLabel = `<span style="color:#38bdf8;font-weight:bold;">🌐 指定网页</span>`;
+                icon = '🌐';
+                if (source.url) {
+                    urlHtml = `<div style="margin-top:4px;"><a href="${source.url}" target="_blank" style="color:#38bdf8;text-decoration:underline;">${source.url}</a></div>`;
+                }
+            } else if (source.type === '网络来源') {
+                typeLabel = `<span style="color:#4ade80;">🌐 联网检索</span>`;
+                icon = '🌐';
+                if (source.url) {
+                    urlHtml = `<div style="margin-top:4px;"><a href="${source.url}" target="_blank" style="color:#38bdf8;text-decoration:underline;">${source.url}</a></div>`;
+                }
+            } else {
+                typeLabel = `<span style="color:#fbbf24;">📄 本地文档</span>`;
+                icon = '📄';
+            }
+
+            let contentHtml;
+            if (source.type === '指定网页') {
+                let cleaned = cleanWebPageNoise(source.content || '');
+                cleaned = cleanMarkdownHeadings(cleaned);
+                contentHtml = truncateMarkdownContent(cleaned, 400);
+            } else {
+                contentHtml = marked.parse(source.content || '');
+            }
+
+            sourceElement.innerHTML = `
+                <div class="source-type">${typeLabel}</div>
+                <div class="source-content">
+                    ${title}
+                    ${contentHtml}
+                    ${urlHtml}
+                </div>
+            `;
+            sourcesList.appendChild(sourceElement);
+        });
+
+        // Display conflict warning if needed
+        if (result.hasConflicts) {
+            const warningElement = document.createElement('div');
+            warningElement.className = 'conflict-warning';
+            warningElement.innerHTML = `
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>检测到不同来源的信息存在潜在冲突，请注意甄别。</p>
+                <div style='margin-top:8px; color:#fbbf24; font-size:0.98rem;'><b>冲突检测推理过程：</b><br>${marked.parse(result.conflict_reason || '')}</div>
+            `;
+            resultContent.appendChild(warningElement);
+        }
+    } catch (e) {
+        console.error('分析结果渲染异常:', e, result);
+        alert('分析结果渲染异常，请刷新页面重试\n' + e.message);
+    }
+}
+
+// 页面加载完成后初始化
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        console.log('页面开始加载...');
+        
+        // 初始化对话状态
+        chatState = {
+            messages: [],
+            isActive: false
+        };
+        
+        // 加载历史对话记录
+        console.log('开始获取对话列表...');
+        const response = await fetch('/api/conversations');
+        console.log('获取到响应:', response.status);
+        
+        if (!response.ok) {
+            throw new Error('获取对话列表失败');
+        }
+        
+        const conversations = await response.json();
+        console.log('获取到对话列表:', conversations);
+        
+        // 如果没有对话记录，创建一个测试对话
+        if (conversations.length === 0) {
+            console.log('没有对话记录，创建测试对话...');
+            const testResponse = await fetch('/api/conversations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: 'test-' + Date.now(),
+                    title: '测试对话'
+                })
+            });
+            
+            if (testResponse.ok) {
+                console.log('测试对话创建成功');
+                // 重新加载对话列表
+                const newResponse = await fetch('/api/conversations');
+                if (newResponse.ok) {
+                    const newConversations = await newResponse.json();
+                    conversations.push(...newConversations);
+                }
+            }
+        }
+        
+        // 更新对话列表
+        const conversationList = document.getElementById('conversation-list');
+        if (!conversationList) {
+            console.error('找不到对话列表元素');
+            return;
+        }
+        
+        conversationList.innerHTML = '';
+        
+        if (conversations.length === 0) {
+            console.log('没有找到任何对话记录');
+            const emptyMessage = document.createElement('div');
+            emptyMessage.className = 'empty-message';
+            emptyMessage.textContent = '暂无对话记录';
+            conversationList.appendChild(emptyMessage);
+        } else {
+            conversations.forEach(conv => {
+                console.log('处理对话:', conv);
+                const conversationItem = document.createElement('div');
+                conversationItem.className = 'conversation-item';
+                conversationItem.dataset.id = conv.id;
+                
+                const title = document.createElement('div');
+                title.className = 'conversation-title';
+                title.textContent = conv.title || '新对话';
+                
+                const time = document.createElement('div');
+                time.className = 'conversation-time';
+                time.textContent = new Date(conv.created_at).toLocaleString();
+                
+                conversationItem.appendChild(title);
+                conversationItem.appendChild(time);
+                
+                conversationItem.addEventListener('click', () => loadConversation(conv.id));
+                conversationList.appendChild(conversationItem);
+            });
+        }
+        
+        // 初始化事件监听
+        initializeEventListeners();
+        
+        // 聚焦到输入框
+        const questionInput = document.getElementById('question-input');
+        if (questionInput) {
+            questionInput.focus();
+        }
+        
+        console.log('页面初始化完成');
+    } catch (error) {
+        console.error('初始化失败:', error);
+    }
+});
+
+// 初始化事件监听器
+function initializeEventListeners() {
+    // 提问按钮点击事件
+    const askButton = document.getElementById('ask-button');
+    const questionInput = document.getElementById('question-input');
+    
+    if (askButton && questionInput) {
+        askButton.addEventListener('click', async () => {
+            const question = questionInput.value.trim();
+            if (!question) return;
+
+            // 如果没有当前对话，创建新对话
+            if (!currentConversationId) {
+                currentConversationId = 'conv-' + Date.now();
+                const newConversation = {
+                    id: currentConversationId,
+                    title: question.slice(0, 30) + (question.length > 30 ? '...' : ''),
+                    created_at: new Date().toISOString()
+                };
+                
+                try {
+                    const response = await fetch('/api/conversations', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(newConversation)
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('创建对话失败');
+                    }
+                    
+                    await loadConversations();
+                } catch (error) {
+                    console.error('保存对话失败:', error);
+                    return;
+                }
+            }
+
+            // 禁用输入和按钮
+            questionInput.disabled = true;
+            askButton.disabled = true;
+            askButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            try {
+                // 添加用户消息到界面
+                addChatMessage('user', question);
+                
+                // 更新对话状态
+                chatState.messages.push({ role: 'user', content: question });
+                
+                // 发送到后端
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: question,
+                        chat_history: chatState.messages,
+                        conversation_id: currentConversationId
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('对话请求失败');
+                }
+
+                const result = await response.json();
+                
+                // 添加AI回复到界面
+                addChatMessage('assistant', result.message);
+                
+                // 更新对话状态
+                chatState.messages.push({ role: 'assistant', content: result.message });
+                
+                // 如果对话完成，进入检索阶段
+                if (result.status === 'complete') {
+                    // 清空分析结果区
+                    const resultPlaceholder = document.getElementById('result-placeholder');
+                    const resultContent = document.getElementById('result-content');
+                    resultPlaceholder.style.display = 'block';
+                    resultContent.style.display = 'none';
+                    const answerSection = document.querySelector('.answer-section');
+                    if (answerSection) answerSection.innerHTML = '';
+                    const sourcesList = document.querySelector('.sources-list');
+                    if (sourcesList) sourcesList.innerHTML = '';
+                    document.querySelectorAll('.conflict-warning').forEach(el => el.remove());
+
+                    // 继续处理检索和生成
+                    const finalResult = await processQuestion(question);
+                    displayResult(finalResult);
+                }
+                
+                // 重置输入框状态
+                questionInput.value = '';
+                questionInput.disabled = false;
+                questionInput.focus();
+                askButton.disabled = false;
+                askButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
+                
+            } catch (error) {
+                console.error('对话失败:', error);
+                const errorMessage = '抱歉，对话出现错误，请重试';
+                addChatMessage('system', errorMessage);
+                questionInput.disabled = false;
+                askButton.disabled = false;
+                askButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
+            }
+        });
+
+        // 输入框回车事件
+        questionInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                askButton.click();
+            }
+        });
+    }
+
+    // 标签页切换
+    const historyTabBtn = document.getElementById('history-tab-btn');
+    const knowledgeTabBtn = document.getElementById('knowledge-tab-btn');
+    const historyPanel = document.getElementById('history-panel');
+    const knowledgePanel = document.getElementById('knowledge-panel');
+
+    if (historyTabBtn && knowledgeTabBtn && historyPanel && knowledgePanel) {
+        historyTabBtn.onclick = () => switchTab('history');
+        knowledgeTabBtn.onclick = () => switchTab('knowledge');
+    }
+
+    // 侧边栏收缩/展开
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('toggle-sidebar-btn');
+    const openSidebarBtn = document.getElementById('open-sidebar-btn');
+
+    if (sidebar && toggleBtn && openSidebarBtn) {
+        toggleBtn.onclick = function() {
+            sidebarCollapsed = true;
+            sidebar.style.width = '0';
+            sidebar.style.minWidth = '0';
+            sidebar.style.padding = '0';
+            sidebar.style.overflow = 'hidden';
+            sidebar.style.boxShadow = 'none';
+            sidebar.style.borderRadius = '0 16px 16px 0';
+            document.getElementById('main-inner').style.paddingLeft = '0';
+            toggleBtn.style.display = 'none';
+            openSidebarBtn.style.display = 'block';
+        };
+
+        openSidebarBtn.onclick = function() {
+            sidebarCollapsed = false;
+            sidebar.style.width = '320px';
+            sidebar.style.minWidth = '220px';
+            sidebar.style.padding = '18px 10px 18px 18px';
+            sidebar.style.overflow = '';
+            sidebar.style.boxShadow = 'var(--glow),2px 0 16px 0 rgba(58,134,255,0.08)';
+            sidebar.style.borderRadius = '0 16px 16px 0';
+            document.getElementById('main-inner').style.paddingLeft = '320px';
+            toggleBtn.style.display = '';
+            openSidebarBtn.style.display = 'none';
+        };
+    }
+
+    // 知识库相关按钮
+    const editKbBtn = document.getElementById('edit-kb-btn');
+    const cancelKbEditBtn = document.getElementById('cancel-kb-edit-btn');
+    const selectAllKbBtn = document.getElementById('select-all-kb-btn');
+    const deleteSelectedKbBtn = document.getElementById('delete-selected-kb-btn');
+    const refreshKbBtn = document.getElementById('refresh-kb-btn');
+    const fileUpload = document.getElementById('file-upload');
+
+    if (editKbBtn) {
+        editKbBtn.onclick = () => setKbEditMode(true);
+    }
+    if (cancelKbEditBtn) {
+        cancelKbEditBtn.onclick = () => {
+            setKbEditMode(false);
+            selectedKbFiles.clear();
+        };
+    }
+    if (selectAllKbBtn) {
+        selectAllKbBtn.onclick = function() {
+            const checkboxes = document.querySelectorAll('.kb-file-checkbox');
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            
+            checkboxes.forEach(cb => {
+                const filename = cb.getAttribute('data-filename');
+                cb.checked = !allChecked;
+                if (!allChecked) {
+                    selectedKbFiles.add(filename);
+                } else {
+                    selectedKbFiles.delete(filename);
+                }
+            });
+        };
+    }
+    if (deleteSelectedKbBtn) {
+        deleteSelectedKbBtn.onclick = async function() {
+            if (!selectedKbFiles.size) {
+                alert('请先选择要删除的文件');
+                return;
+            }
+
+            if (!confirm('确定要删除选中的文件吗？此操作不可恢复。')) return;
+
+            try {
+                const response = await fetch('/api/knowledge/delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        filenames: Array.from(selectedKbFiles)
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.error || '删除失败');
+                }
+
+                if (result.errors && result.errors.length > 0) {
+                    alert(`部分文件删除成功，但存在以下错误：\n${result.errors.join('\n')}`);
+                } else {
+                    alert('文件删除成功');
+                }
+                
+                selectedKbFiles.clear();
+                setKbEditMode(false);
+                await renderKnowledgeBase();
+                
+            } catch (error) {
+                console.error('文件删除失败:', error);
+                alert('文件删除失败: ' + error.message);
+            }
+        };
+    }
+    if (refreshKbBtn) {
+        refreshKbBtn.onclick = renderKnowledgeBase;
+    }
+    if (fileUpload) {
+        fileUpload.addEventListener('change', async function(e) {
+            const files = e.target.files;
+            if (!files.length) return;
+
+            const formData = new FormData();
+            for (let file of files) {
+                formData.append('files[]', file, file.name);
+            }
+
+            try {
+                const response = await fetch('/api/knowledge/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || '上传失败');
+                }
+                
+                const result = await response.json();
+                if (result.error) throw new Error(result.error);
+                
+                alert('文件上传成功');
+                await renderKnowledgeBase();
+            } catch (error) {
+                console.error('文件上传失败:', error);
+                alert('文件上传失败: ' + error.message);
+            }
+
+            e.target.value = '';
+        });
+    }
+
+    // 新建对话按钮
+    const newChatBtn = document.getElementById('new-chat-btn');
+    if (newChatBtn) {
+        newChatBtn.addEventListener('click', async () => {
+            if (currentConversationId && chatState.messages.length > 0) {
+                try {
+                    const lastMessage = chatState.messages[chatState.messages.length - 1];
+                    const title = lastMessage.content.slice(0, 30) + (lastMessage.content.length > 30 ? '...' : '');
+                    
+                    await fetch(`/api/conversations/${currentConversationId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ title: title })
+                    });
+
+                    await loadConversations();
+                } catch (error) {
+                    console.error('保存当前对话失败:', error);
+                }
+            }
+            
+            currentConversationId = null;
+            chatState.messages = [];
+            chatState.isActive = false;
+            
+            const chatMessages = document.getElementById('chat-messages');
+            if (chatMessages) {
+                chatMessages.innerHTML = '';
+            }
+            
+            if (questionInput) {
+                questionInput.value = '';
+            }
+            
+            renderConversations();
+            
+            if (questionInput) {
+                questionInput.focus();
+            }
+        });
+    }
+}
+
+// 导出需要的函数
+export {
+    cleanWebPageNoise,
+    cleanMarkdownHeadings,
+    truncateMarkdownContent,
+    processQuestion,
+    displayResult,
+    updateProgress,
+    showStepContent,
+    addChatMessage,
+    switchConversation,
+    renderConversations,
+    loadConversations,
+    renderHistory,
+    setEditMode,
+    renderHistoryControls,
+    setKbEditMode,
+    renderKnowledgeBase,
+    initializeEventListeners
+}; 
