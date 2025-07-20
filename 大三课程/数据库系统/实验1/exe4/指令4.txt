@@ -1,0 +1,142 @@
+1	Select the name, job, and date of hire of the employees in department 20. (Format the HIREDATE column to MM/DD/YY)    
+	SELECT 
+   	 	ENAME, 
+   		 JOB, 
+ 		 DATE_FORMAT(HIREDATE, '%m/%d/%y')AS HIREDATE
+	FROM 
+   		 emp2022150221
+	WHERE 
+   		 DEPTNO = 20;
+
+2	Then format the HIREDATE column into DoW (day of the week), Day (day of the month), MONTH (name of the month) and YYYY(year) 
+	SELECT 
+	    	ENAME, 
+    		JOB, 
+    		DAYNAME(HIREDATE) AS DoW,
+    		DAY(HIREDATE) AS Day,
+    		MONTHNAME(HIREDATE) AS MONTH,
+    		YEAR(HIREDATE) AS YYYY
+	FROM 
+    		emp2022150221
+	WHERE 
+    		DEPTNO = 20;
+
+3	Which employees were hired in April?
+	SELECT 
+  		  ENAME
+	FROM 
+ 		   emp2022150221
+	WHERE 
+ 		   MONTH(HIREDATE)= 4;
+
+4	Which employees were hired on a Tuesday?
+	SELECT 
+  		  ENAME
+	FROM 
+    		emp2022150221
+	WHERE 
+    		DAYNAME(HIREDATE)= "TUESDAY";
+
+5	Are there any employees who have worked more than 30 years for the company? 
+	SELECT 
+ 		   ENAME,
+   		 TIMESTAMPDIFF(YEAR, HIREDATE, CURDATE()) AS TOTAL_TIME
+	FROM 
+   		 emp2022150221
+	WHERE 
+    		TIMESTAMPDIFF(YEAR, HIREDATE, CURDATE()) > 30;
+
+6	Show the weekday of the first day of the month in which each employee was hired. (plus their names)
+	SELECT 
+    		ENAME,
+  		  DAYNAME(LAST_DAY(HIREDATE) + INTERVAL 1 DAY - INTERVAL 1 MONTH) AS WEEKDAY
+	FROM 
+   		 emp2022150221;
+
+7	Show details of employee hiredates and the date of their first payday. (Paydays occur on the last Friday of each month) (plus their names)
+	DELIMITER //
+		DROP FUNCTION IF EXISTS GetFirstPayday//
+
+		CREATE FUNCTION GetFirstPayday(hiredate DATE) RETURNS DATE
+	BEGIN
+ 		 DECLARE first_payday DATE;
+ 		 DECLARE last_day_of_month DATE;
+  		DECLARE last_friday_of_month DATE;
+ 		 DECLARE last_day_of_next_month DATE;
+  		DECLARE last_friday_of_next_month DATE;
+
+ 		 -- 获取入职日期所在月的最后一天
+  		SET last_day_of_month = LAST_DAY(hiredate);
+  
+  		-- 计算本月最后一个周五的日期
+  		SET last_friday_of_month = last_day_of_month - INTERVAL (DAYOFWEEK(last_day_of_month) + 1) % 7 DAY;
+  
+  		-- 计算下个月最后一天的日期
+  		SET last_day_of_next_month = LAST_DAY(LAST_DAY(HIREDATE) + INTERVAL 1 DAY );
+
+  		-- 计算下个月最后一个周五的日期
+  		SET last_friday_of_next_month = last_day_of_next_month - INTERVAL (DAYOFWEEK(last_day_of_next_month) + 1) % 7 DAY;
+
+  		-- 检查入职日期是否晚于本月最后一个周五
+ 		 IF hiredate > last_friday_of_month THEN
+  		  -- 如果是，则首次发工资是下个月的最后一个周五
+    			SET first_payday = last_friday_of_next_month;
+  		ELSE
+    		-- 如果不是，则首次发工资是本月最后一个周五
+   			 SET first_payday = last_friday_of_month;
+  		END IF;
+
+  		RETURN first_payday;
+	END //
+
+	DELIMITER ;
+
+	SELECT 
+		ENAME,
+   		GetFirstPayday(HIREDATE) AS FIRSTPAY
+	FROM
+		emp2022150221;
+
+8	Refine your answer to 7 such that it works even if an employee is hired after the last Friday of the month (cf Martin)
+	DELIMITER //
+		DROP FUNCTION IF EXISTS GetFirstPayday//
+
+		CREATE FUNCTION GetFirstPayday(hiredate DATE) RETURNS DATE
+	BEGIN
+ 		 DECLARE first_payday DATE;
+ 		 DECLARE last_day_of_month DATE;
+  		DECLARE last_friday_of_month DATE;
+ 		 DECLARE last_day_of_next_month DATE;
+  		DECLARE last_friday_of_next_month DATE;
+
+ 		 -- 获取入职日期所在月的最后一天
+  		SET last_day_of_month = LAST_DAY(hiredate);
+  
+  		-- 计算本月最后一个周五的日期
+  		SET last_friday_of_month = last_day_of_month - INTERVAL (DAYOFWEEK(last_day_of_month) + 1) % 7 DAY;
+  
+  		-- 计算下个月最后一天的日期
+  		SET last_day_of_next_month = LAST_DAY(LAST_DAY(HIREDATE) + INTERVAL 1 DAY );
+
+  		-- 计算下个月最后一个周五的日期
+  		SET last_friday_of_next_month = last_day_of_next_month - INTERVAL (DAYOFWEEK(last_day_of_next_month) + 1) % 7 DAY;
+
+  		-- 检查入职日期是否晚于本月最后一个周五
+ 		 IF hiredate > last_friday_of_month THEN
+  		  -- 如果是，则首次发工资是下个月的最后一个周五
+    			SET first_payday = last_friday_of_next_month;
+  		ELSE
+    		-- 如果不是，则首次发工资是本月最后一个周五
+   			 SET first_payday = last_friday_of_month;
+  		END IF;
+
+  		RETURN first_payday;
+	END //
+
+	DELIMITER ;
+
+	SELECT 
+		ENAME,
+   		GetFirstPayday(HIREDATE) AS FIRSTPAY
+	FROM
+		emp2022150221;

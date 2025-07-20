@@ -1,0 +1,62 @@
+1	List all information about the employees.
+	SELECT * FROM emp2022150221;
+
+2	List all information about the departments
+	SELECT * FROM dept2022150221;
+
+3	List only the following information from the EMP table ( Employee name, employee number, salary, department number)
+	SELECT ENAME, EMPNO, SAL, DEPTNO FROM emp2022150221;
+
+4	List details of employees in departments 10 and 30.
+	SELECT * FROM emp2022150221 WHERE DEPTNO>=10&&DEPTNO<=30；
+
+5	List all the jobs in the EMP table eliminating duplicates.
+	SELECT DISTINCT JOB FROM emp2022150221;
+
+6.	What are the names of the employees who earn less than £20,000?
+	SELECT ENAME FROM emp2022150221 WHERE SAL<=20000;
+
+7.	What is the name, job title and employee number of the person in department 20 who earns more than £25000?
+	SELECT ENAME, JOB, EMPNO FROM emp2022150221 WHERE SAL>=25000 && DEPTNO=20;
+
+8.	Find all employees whose job is either Clerk or Salesman.
+	SELECT * FROM emp2022150221 WHERE JOB IN ("Clerk", "Salesman");
+
+9.	Find any Clerk who is not in department 10.
+	SELECT * FROM emp2022150221 WHERE DEPTNO != 10;
+
+10.	Find everyone whose job is Salesman and all the Analysts in department 20.
+	SELECT * FROM emp2022150221 WHERE JOB = "Salesman" AND DEPTNO = 20
+
+11.	Find all the employees who earn between £15,000 and £20,000. Show the employee name, department and salary.
+	SELECT ENAME, DEPTNO, SAL FROM emp2022150221 WHERE SAL >=15000 AND SAL <=20000;	
+
+12	Find the name of the President.
+	SELECT ENAME FROM emp2022150221 WHERE JOB = "President";
+	
+13	Find all the employees whose last names end with S
+	SELECT * FROM emp2022150221 WHERE ENAME LIKE '%S';
+
+14	List the employees whose names have TH or LL in them
+	SELECT * FROM emp2022150221 WHERE ENAME LIKE '%TH%' or ENAME LIKE '%LL%';
+
+15	List only those employees who receive commission.
+	SELECT * FROM emp2022150221 WHERE COMM != 'NULL';
+
+16	Find the name, job, salary, hiredate, and department number of all employees by alphabetical order of name.
+	SELECT ENAME, JOB, SAL, HIREDATE, DEPTNO FROM emp2022150221 ORDER BY ENAME ASC;
+
+17.	Find the name, job, salary, hiredate and department number of all employees in ascending order by their salaries.
+	SELECT ENAME, JOB, SAL, HIREDATE, DEPTNO FROM emp2022150221 ORDER BY SAL ASC;
+
+18.	List all salesmen in descending order by commission divided by their salary.
+	SELECT * FROM emp2022150221 WHERE JOB = "SALESMAN" ORDER BY COMM/SAL DESC;
+
+19.	Order employees in department 30 who receive commision, in ascending order by commission
+	SELECT * FROM emp2022150221 WHERE COMM != 'NULL' AND DEPTNO = 30 ORDER BY COMM ASC;
+
+20	Find the names, jobs, salaries and commissions of all employees who do not have managers.
+	SELECT EMPNO, ENAME, JOB, SAL, COMM FROM emp2022150221 WHERE MGR IS NULL;
+
+21	Find all the salesmen in department 30 who have a salary greater than or equal to £18000.
+	SELECT * FROM emp2022150221 WHERE JOB = "SALESMAN" AND DEPTNO = 30 AND SAL >= 18000;

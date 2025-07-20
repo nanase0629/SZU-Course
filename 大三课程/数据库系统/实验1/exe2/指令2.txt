@@ -1,0 +1,42 @@
+1.	Find the name and salary of employees in Luton.
+	SELECT emp2022150221.ENAME, emp2022150221.SAL FROM emp2022150221 
+	JOIN dept2022150221 ON emp2022150221.DEPTNO = dept2022150221.DEPTNO
+	WHERE dept2022150221.LOC = 'Luton';
+
+2.	Join the DEPT table to the EMP table and show in department number 		order.
+	SELECT * FROM emp2022150221 
+	JOIN dept2022150221 ON emp2022150221.DEPTNO = dept2022150221.DEPTNO
+	ORDER BY dept2022150221.DEPTNO ASC;
+
+3.	List the names of all salesmen who work in SALES
+	SELECT emp2022150221.ENAME FROM emp2022150221 
+	JOIN dept2022150221 ON emp2022150221.DEPTNO = dept2022150221.DEPTNO
+	WHERE emp2022150221.JOB = "SALESMAN" AND dept2022150221.DNAME = "SALES";
+	
+4.	List all departments that do not have any employees.
+	SELECT dept2022150221.DNAME FROM dept2022150221
+	LEFT JOIN emp2022150221 ON dept2022150221.DEPTNO = emp2022150221.DEPTNO
+	WHERE emp2022150221.DEPTNO IS NULL;	
+
+5	For each employee whose salary exceeds his manager's salary, list the 		employee's name and salary and the manager's name and salary.	
+	SELECT 
+    		   e.ENAME AS EmployeeName,
+   		   e.SAL AS EmployeeSalary,
+ 		   m.ENAME AS ManagerName,
+  		   m.SAL AS ManagerSalary
+	FROM 
+    		   emp2022150221 AS e
+	INNER JOIN 
+    		   emp2022150221 AS m ON e.MGR = m.EMPNO
+	WHERE 
+    		   e.SAL > m.SAL;
+
+6. 	List the employees who have BLAKE as their manager.
+	SELECT 
+  		  e.*
+	FROM 
+   		 emp2022150221 AS e
+	INNER JOIN 
+    		emp2022150221 AS m ON e.MGR = m.EMPNO
+	WHERE 
+    		m.ENAME = "BLAKE"

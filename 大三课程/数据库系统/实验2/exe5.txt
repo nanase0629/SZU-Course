@@ -1,0 +1,48 @@
+1.List the department number and average salary of each department.
+ 	SELECT DEPTNO, AVG(SAL) AS avg_salary
+	FROM emp2022150221
+	GROUP BY DEPTNO;
+
+2.Divide all employees into groups by department and by job within department. Count the employees in each group and compute each group's average annual salary.
+	SELECT DEPTNO, JOB, COUNT(*) AS num_employees, AVG(SAL * 12) AS avg_annual_salary
+	FROM emp2022150221	
+	GROUP BY DEPTNO, JOB
+	ORDER BY DEPTNO;
+
+3.Issue the same query as above except list the department name rather than the department number.
+	SELECT d.DNAME, JOB, COUNT(*) AS num_employees, AVG(SAL * 12) AS avg_annual_salary
+	FROM emp2022150221 as e
+	JOIN dept2022150221 as d ON e.DEPTNO = d.DEPTNO
+	GROUP BY e.DEPTNO, JOB
+	ORDER BY e.DEPTNO;
+
+4.List the average annual salary for all job groups having more than 2 employees in the group.
+	SELECT JOB, AVG(SAL * 12) AS avg_annual_salary
+	FROM emp2022150221 
+	GROUP BY JOB
+	HAVING COUNT(*)>2;
+
+5.Find all departments with an average commission greater than 25% of average salary.
+	SELECT
+    		DEPTNO,
+    		AVG(COMM),
+    		AVG(SAL),
+  		AVG(SAL)/AVG(COMM) as proportion
+	FROM
+    		emp2022150221
+	GROUP BY
+    		DEPTNO
+	HAVING
+    		AVG(COMM) > AVG(SAL) * 0.25;
+
+6.Find each department's average annual salary for all its employees except the managers and the president.
+	SELECT
+    		DEPTNO,
+    		AVG(SAL * 12) AS avg_annual_salary
+	FROM
+    		emp2022150221
+	WHERE
+    		JOB NOT IN('MANAGER', 'PRESIDENT')
+	GROUP BY
+    		DEPTNO;
+

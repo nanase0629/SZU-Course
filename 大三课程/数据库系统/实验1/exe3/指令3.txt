@@ -1,0 +1,74 @@
+1	Find how many employees have a title of manager without listing them.
+	SELECT COUNT(*) AS NUMBER FROM emp2022150221 WHERE JOB ="MANAGER"
+
+2	Compute the average annual salary plus commission for all salesmen
+	SELECT AVG(SAL * 12 + COALESCE(COMM, 0)) AS AVG
+	FROM emp2022150221
+	WHERE JOB = 'SALESMAN';
+
+3	Find the highest and lowest salaries and the difference between them (single SELECT statement)
+	SELECT
+  		  MAX(SAL) AS MAX,
+    		  MIN(SAL) AS MIN,
+  		  (MAX(SAL) - MIN(SAL)) AS DIFF
+	FROM
+    		  emp2022150221;
+
+4	Find the number of characters in the longest department name
+	SELECT MAX(LENGTH(DNAME)) AS MAX_len FROM dept2022150221;
+
+5	Count the number of people in department 30 who receive a salary and the number of people who receive a commission (single statement).
+ 法一：	
+	SELECT
+ 		 SUM(CASE WHEN e.SAL IS NOT NULL THEN 1 ELSE 0 END) AS NUM_SAL,
+ 		 SUM(CASE WHEN e.COMM IS NOT NULL AND e.COMM > 0 THEN 1 ELSE 0 END) AS NUM_COMM
+	FROM
+ 		 emp2022150221 AS e
+	WHERE
+ 		 e.DEPTNO = 30;
+法二：
+	SELECT
+ 		 COUNT(e.SAL IS NOT NULL OR NULL) AS NUM_SAL,
+ 		 COUNT(e.COMM IS NOT NULL OR NULL) AS NUM_COMM
+	FROM
+  		emp2022150221 AS e
+	WHERE
+		e.DEPTNO = 30;
+
+6	List the average commission of employees who receive a commission, and the average commission of all employees (assume employees who do not receive a commission attract zero commission)
+	SELECT
+  		AVG(e.COMM) AS AVG_COMM_RECEIVED,
+ 		 AVG(CASE WHEN e.COMM IS NOT NULL THEN e.COMM ELSE 0 END) AS AVG_COMM_ALL
+	FROM
+  		emp2022150221 AS e;
+
+7	List the average salary of employees that receive a salary, the average commission of employees that receive a commission, the average 	salary plus commission of only those employees that receive a commission and the average salary plus commission of all employees including  those that do not receive a commission. (single statement)
+	SELECT
+  		AVG(e.SAL) AS AVG_SAL_RECEIVED,
+		AVG(e.COMM) AS AVG_COMM_RECEIVED,
+ 		AVG(CASE WHEN e.COMM IS NOT NULL THEN e.COMM + e.SAL END) AS AVG_SALARY_PLUS_COMM_RECEIVED,
+		AVG(CASE WHEN e.COMM IS NOT NULL THEN e.COMM + e.SAL ELSE e.SAL END) AS AVG_SALARY_PLUS_COMM_ALL
+	FROM
+		emp2022150221 AS e;
+	
+8	Compute the daily and hourly salary for employees in department 30, 	round to the nearest penny. Assume there are 22 working days in a month and 8 working hours in a day.
+	SELECT
+  		e.EMPNO,
+  		e.ENAME,
+  		ROUND(e.SAL / 22, 2) AS DailySalary,
+ 		 ROUND((e.SAL / 22) / 8, 2) AS HourlySalary
+	FROM
+  		emp2022150221 AS e
+	WHERE
+ 		 e.DEPTNO = 30;
+
+9	Issue the same query as the previous one except that this time truncate (TRUNC) to the nearest penny rather than round.
+	SELECT
+  		  e.EMPNO,
+    		 e.ENAME,
+   		 TRUNCATE(e.SAL / 22, 2) AS DailySalary,
+    		TRUNCATE((e.SAL / 22) / 8,2) AS HourlySalary
+	FROM
+   		 emp2022150221 AS e
+	WHERE
+  		  e.DEPTNO = 30;

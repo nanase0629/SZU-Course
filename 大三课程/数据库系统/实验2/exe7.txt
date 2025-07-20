@@ -1,0 +1,68 @@
+1.Create a new table called loans with columns named LNO NUMERIC (3), EMPNO NUMERIC (4), TYPE CHAR(1), AMNT NUMERIC (8,2)
+CREATE TABLE loans2022150221 (
+    LNO NUMERIC(3),
+    EMPNO NUMERIC(4),
+    TYPE CHAR(1),
+    AMNT NUMERIC(8,2) 
+);
+
+2.Insert the following data
+
+		LNO		EMPNO		TYPE		AMNT
+		23		7499			M		20000.00
+		42		7499			C		 2000.00
+		65		7844			M		 3564.00
+
+INSERT INTO loans2022150221 (LNO, EMPNO, TYPE, AMNT) 
+VALUES
+	(23, 7499, 'M', 20000.00),
+	(42, 7499, 'C', 2000.00),
+	(65, 7844, 'M', 3564.00);   
+
+
+3.Check that you have created 3 new records in Loans
+SELECT * FROM loans2022150221;  	
+
+4.The Loans table must be altered to include another column OUTST NUMERIC(8,2)
+ALTER TABLE loans2022150221
+ADD OUTST NUMERIC(8,2);          
+
+5.Add 10% interest to all M type loans
+UPDATE Loans2022150221
+SET AMNT = AMNT * 1.10
+WHERE TYPE = 'M';
+
+6.Remove all loans less than  £3000.00
+SELECT * FROM loans2022150221
+WHERE AMNT < 3000.00;
+
+7.Change the name of loans table to accounts
+RENAME TABLE loans2022150221 TO accounts2022150221;
+
+8.Change the name of column LNO to LOANNO
+ALTER TABLE accounts2022150221 CHANGE LNO LOANNO;s
+
+9.Create a view for use by personnel in department 30 showing employee name, number, job and hiredate
+CREATE VIEW Dept30_2022150221 AS
+SELECT EMPNO, ENAME, JOB, HIREDATE
+FROM emp2022150221
+WHERE DEPTNO = 30;
+
+10.Use the view to show employees in department 30 having jobs which are not salesman
+SELECT * FROM dept30_2022150221
+WHERE JOB != 'salesman';      
+
+11.Create a view which shows summary information for each department.
+CREATE VIEW sum_dept2022150221 AS
+SELECT
+    e.DEPTNO,
+    COUNT(e.EMPNO) AS total_employees,
+    AVG(e.SAL) AS average_salary,
+    MIN(e.SAL) AS minimum_salary,
+    MAX(e.SAL) AS maximum_salary,
+    SUM(e.SAL) AS total_salary
+FROM
+    emp2022150221 AS e
+GROUP BY
+    e.DEPT;
+
