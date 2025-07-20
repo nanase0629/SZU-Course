@@ -1,0 +1,10 @@
+^D:\下载\实验1.1_参考代码\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SD:/下载/实验1.1_参考代码 -BD:/下载/实验1.1_参考代码 --check-stamp-file D:/下载/实验1.1_参考代码/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

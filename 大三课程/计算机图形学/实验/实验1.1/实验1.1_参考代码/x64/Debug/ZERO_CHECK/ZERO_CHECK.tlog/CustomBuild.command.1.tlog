@@ -1,0 +1,10 @@
+^D:\下载\实验1.1_参考代码\CMAKEFILES\FDE103B8F16E9A031B174E8F29A3D8CE\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SD:/下载/实验1.1_参考代码 -BD:/下载/实验1.1_参考代码 --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file D:/下载/实验1.1_参考代码/main.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

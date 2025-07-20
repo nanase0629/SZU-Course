@@ -1,0 +1,6 @@
+﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\amd64\Microsoft.Common.CurrentVersion.targets(2176,5): warning : The referenced project 'D:\下载\实验1.1_参考代码\ZERO_CHECK.vcxproj' does not exist.
+  Building Custom Rule D:/下载/实验1.1_参考代码/CMakeLists.txt
+  CMake is re-running because D:/涓嬭浇/瀹為獙1.1_鍙傝€冧唬鐮?CMakeFiles/generate.stamp dependency file is missing.
+CUSTOMBUILD : CMake error : The source directory "D:/涓嬭浇/瀹為獙1.1_鍙傝€冧唬鐮? does not appear to contain CMakeLists.txt.
+  Specify --help for usage, or press the help button on the CMake GUI.
+C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppCommon.targets(254,5): error MSB8066: “D:\下载\实验1.1_参考代码\CMakeLists.txt”的自定义生成已退出，代码为 1。
