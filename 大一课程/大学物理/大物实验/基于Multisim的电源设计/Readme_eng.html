@@ -1,0 +1,749 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+<title>Circuit Design Suite 14.0 Readme for Windows</title>
+<style type="text/css">
+/***************************************************/
+/* MINIMAL STYLES */
+/* The following section defines styles that every HTML Help project should need. */
+
+/* Specifies White Background color */
+body {background-color:#ffffff}
+
+/* The default style of P is red to alert you that you need to apply a style class, such as Body. */
+P { margin-top:6.00pt; margin-bottom:6.00pt; font-family:Verdana; font-size:8pt; color: #000000; }
+
+BR { font-size:4.00pt; }
+
+H1,H2,H3,H4,H5,H6 { color:#000000 }
+
+/* Use H1 for all topic headings. */
+H1 { margin-top:3.00pt; margin-bottom:3.00pt; font-family:Verdana; font-size:12pt; font-weight:bold;  }
+
+/* Use H2 for second-level headings. */
+H2 { margin-top:9.00pt; margin-bottom:3.00pt; font-family:Verdana; font-size:10pt; font-weight:bold;  }
+
+/* Use H3 for third-level headings. */
+H3 { margin-top:6.00pt; margin-bottom:3.00pt; font-family:Verdana; font-size:8pt; font-weight:bold;  }
+
+/* Use H4 for fourth-level headings. */
+H4 { margin-top:3.00pt; margin-bottom:3.00pt; font-family:Verdana; font-size:8pt; font-weight:bold;  }
+
+/* H5 and H6 have the same definition as H4 because you should not need this level of heading in one topic. If you need to use H5 or H6, consider breaking up your topic into more than one topic. */
+H5 { margin-top:3.00pt; margin-bottom:3.00pt; font-family:Verdana; font-size:8pt; font-weight:bold;  }
+H6 { margin-top:3.00pt; margin-bottom:3.00pt; font-family:Verdana; font-size:8pt; font-weight:bold;  }
+
+/* Use the Body style class for normal paragraphs. */
+P.Body { margin-top:6.00pt; margin-bottom:6.00pt; font-family:Verdana; font-size:8pt; color:#000000;  }
+
+/* Use the Anchor style class for graphic references on a line by themselves. */
+P.Anchor { margin-top:6.00pt; margin-bottom:6.00pt; font-family:Verdana; font-size:10pt; color:#000000;  }
+
+/* Use the Indent style classes to indent a paragraph. If you need to indent text below a list item, use to start the new paragraph within the same set of tags. If you need to indent a list within another list, nest the indented list within the first list's set of or tags. */
+P.Indent1 { margin-left:12.00pt; margin-top:6.00pt; margin-bottom:3.00pt; font-family:Verdana; font-size:8pt; color:#000000;  }
+P.Indent2 { margin-left:24.00pt; margin-top:6.00pt; margin-bottom:3.00pt; font-family:Verdana; font-size:8pt; color:#000000;  }
+P.Indent3 { margin-left:36.00pt; margin-top:6.00pt; margin-bottom:3.00pt; font-family:Verdana; font-size:8pt; color:#000000;  }
+
+/* Use the LI style for all list items. */
+LI { margin-top:3.00pt; margin-bottom:3.00pt; font-family:Verdana; font-size:8pt; color:#000000; }
+
+
+
+/* Use the OL style for numbered lists. You do not have to type the number for each list item in a numbered list. */
+OL { margin-left:18.00pt; margin-top:3.00pt; margin-bottom:3.00pt; text-indent:0pt; font-family:Verdana; font-size:8pt; color:#000000; list-style-type: decimal; }
+
+/* Use the OL style for numbered lists. Nested lists will use the bullet types according to the nesting scheme below */
+ol ol {list-style-type:lower-alpha}
+ol ol ol {list-style-type:decimal}
+ol ol ol ol {list-style-type:lower-alpha}
+ol ol ol ol ol {list-style-type:decimal}
+ol ol ol ol ol ol {list-style-type:lower-alpha}
+ol ol ol ol ol ol ol {list-style-type:decimal}
+ol ol ol ol ol ol ol ol {list-style-type:lower-alpha}
+
+
+/* Use the EquationNum style class for numbered lists of equations. You do not have to type the number for each list item in a numbered list. */
+OL.EquationNum { margin-left:36.00pt; margin-top:3.00pt; margin-bottom:3.00pt; text-indent:0pt; font-family:Verdana; font-size:8pt; color:#000000; list-style-type: decimal; }
+
+/* Use the List-abc style class for lettered lists. You do not have to type the letter for each list item in a lettered list. */
+OL.List-abc { margin-left:18.00pt; margin-top:3.00pt; margin-bottom:3.00pt; text-indent:0pt; font-family:Verdana; font-size:8pt; color:#000000; list-style-type:lower-alpha; }
+
+/* Use the UL style for bulleted lists. You do not have to type the bullet for each list item in a bulleted list. */
+UL { margin-left:12.00pt; text-indent:0pt; margin-top:3.00pt; margin-bottom:3.00pt; font-family:Verdana; font-size:8pt; color:#000000;}
+
+/* Use the List-Box style class for bulleted lists with boxes instead of bullets. You do not have to type the box for each list item in a box list. */
+UL.List-Box { margin-left:12.00pt; margin-top:3.00pt; margin-bottom:3.00pt; text-indent:0pt; font-family:Verdana; font-size:8pt; color:#000000; list-style-type: square; }
+
+
+/* Use the Borderless style class for tables that do not need borders, such as for 2-column or 3-column lists with no headings. */
+Table.Borderless { border:none; }
+
+/* Use the Bordered style class for tables that need borders. */
+Table.Bordered { border-width: 1pt; border-style: solid; border-color: #000000; border-collapse: collapse; }
+
+/* Use the Borderless-Wide style class for tables that do not need borders and that you want to stretch to fill the entire topic width. */
+Table.Borderless-Wide { border:none; width:100%; }
+
+/* Use the Bordered-Wide style class for tables that need borders and that you want to stretch to fill the entire topic width. */
+Table.Bordered-Wide { border-width: 1pt; border-style: solid; border-color: #000000; width:100%; border-collapse: collapse; }
+
+/* Use the TD style for table cells in Borderless or Borderless-Wide tables. */
+TD { font-family:Verdana; font-size:8pt; color:#000000; vertical-align:top; padding:3px; }
+
+/* Use the Bordered style class for table cells in Bordered or Bordered-Wide tables. */
+TD.Bordered { font-family:Verdana; font-size:8pt; color:#000000; vertical-align:top; border-width: 1pt; border-style: solid; border-color: #000000; }
+
+/* Use the Icon style class for table cells that contain note, caution, warning, or tip icons, or LabVIEW datatype terminals. */
+TD.Icon { width:40px; vertical-align:top; }
+
+/* Use the Table-cell-8pt style class for table cells in tables that contain a lot of information and need smaller text to fit it all on one screen to prevent a horizontal scroll bar from appearing. */
+TD.Table-cell-8pt { font-family:Verdana; font-size:7pt; color:#000000;  }
+
+/* Use the TH style for table heading cells in Borderless or Borderless-Wide tables. */
+TH { font-family:Verdana; font-size:8pt; color:#000000; font-weight:bold; padding:3px; }
+
+/* Use the Bordered style class for table heading cells in Bordered or Bordered-Wide tables. */
+TH.Bordered { font-family:Verdana; font-size:8pt; color:#000000; font-weight:bold;  border-width: 1pt; border-style: solid; border-color: #000000; }
+
+/* Use the Table-cell-8pt style class for table heading cells in tables that contain a lot of information and need smaller text to fit it all on one screen to prevent a horizontal scroll bar from appearing. */
+TH.Table-Head-8pt { font-family:Verdana; font-size:7pt; color:#000000; font-weight:bold; }
+
+/* Use the Left-Align style class for table heading cells that you want to left align instead of center align. */
+TH.Left-Align { font-family:Verdana; font-size:8pt; color:#000000; font-weight:bold; padding:3px; text-align:left; }
+
+/***************************************************/
+/* CHARACTER FORMATS */
+/* The following section defines character formats that every HTML Help project should need. */
+
+/* Use the Dark-Red format for warnings or cautions. */
+#Dark-Red { color: #800000 }
+
+/* Use the Monospace format for code or syntax examples. */
+#Monospace { font-family: Courier New; font-size: 8pt; }
+
+/* Use the Monospace-Bold format for messages and responses that the computer automatically prints to the screen. */
+#Monospace-Bold { font-family: Courier New; font-size: 8pt; font-weight: bold; }
+
+/* Use the Monospace-Italic format to denote text that is a placeholder for a word or value that the user must supply. */
+#Monospace-Italic { font-family: Courier New; font-size: 8pt; font-style: italic; }
+
+/* Use the Platform format to denote a specific platform. */
+#Platform { color: #0000FF; font-weight: bold; }
+
+
+/* Use the Symbol format for characters not in the Verdana character set. Use this format sparingly. When possible, you should use the correct ASCII code for the symbol or use a graphic to recreate the symbol. */
+#Symbol { font-family: Symbol; font-size: 8pt; }
+
+/* The following styles define the color of links. */
+a:link { color: #007700 }
+a:hover { color: #FF0000 }
+a:active { color: #FF0000 }
+a:visited { color: #7F007F }
+
+/***************************************************/
+/* ACTIVITY STYLES */
+/* The following section defines styles that only tutorial-style HTML Help projects should need. */
+
+/* Use the Activity-Objective style class for the objective at the beginning of an activity topic. */
+H3.Activity-Objective { color: #800000; }
+
+/***************************************************/
+/* CODE STYLES */
+/* The following section defines styles that you need to format entire sections of code or syntax examples. If you have just a few words you need to format as a code or syntax example, use the Monospace character format. */
+
+P.Code { margin-top:3.00pt; margin-bottom:0.00pt; font-family:Courier New; font-size:8pt; color:#000000;  }
+P.Code1 { margin-left:12.00pt; margin-top:3.00pt; margin-bottom:0.00pt; font-family:Courier New; font-size:8pt; color:#000000;  }
+P.Code2 { margin-left:24.00pt; margin-top:3.00pt; margin-bottom:0.00pt; font-family:Courier New; font-size:8pt; color:#000000;  }
+P.Code3 { margin-left:36.00pt; margin-top:3.00pt; margin-bottom:0.00pt; font-family:Courier New; font-size:8pt; color:#000000;  }
+
+/***************************************************/
+/* FUNCTION STYLES */
+/* The following section defines styles that you might need to format function reference help. */
+
+P.F-VI-Code4 { margin-left:48.00pt; margin-top:3.00pt; margin-bottom:0.00pt; font-family:Courier New; font-size:8pt; color:#000000;  }
+P.F-VI-Code5 { margin-left:60.00pt; margin-top:3.00pt; margin-bottom:0.00pt; font-family:Courier New; font-size:8pt; color:#000000;  }
+P.F-VI-Equation { margin-top:9.00pt; margin-bottom:9.00pt; font-family:Verdana; font-size:8pt; color:#000000;  }
+
+OL.F-VI-EquationNum { margin-top:3.00pt; margin-bottom:3.00pt; text-indent:0pt; font-family:Verdana; font-size:8pt; color:#000000; list-style-type: decimal; }
+</style>
+</head>
+
+<body>
+
+<h1>NI Circuit Design Suite 14.0 Readme for Windows</h1>
+
+<p class="Body">April 2015</p>
+
+
+<p class="Body">This file contains important last-minute information about Circuit Design Suite 14.0 for Windows, including installation and compatibility issues.</p>
+
+<p>Refer to <em>Getting Started with NI Circuit Design Suite</em> for information about getting started with Circuit Design Suite. You can access this PDF from <strong>Start&#0187;All Programs&#0187;National Instruments&#0187;Circuit Design Suite 14.0&#0187;Documentation&#0187;Circuit Design Suite 14.0 Getting Started</strong>. </p>
+<p>You can also access this from the Multisim or Ultiboard Help menu.</p>
+
+<p class="Body">
+<a href="#platforms">Supported Platforms</a><br />
+<a href="#install">Installing Circuit Design Suite 14.0</a><br />
+<a href="#updates">Product Security and Critical Updates</a><br />
+<a href="#known">Known Issues</a><br />
+<a href="#bug_fixes">Bug Fixes</a><br />
+<a href="#newcomponents">New Components</a><br />
+</p>
+
+<h2><a id="platforms">Supported Platforms</a></h2>
+<p class="Body">To run Circuit Design Suite 14.0, your operating system (OS) must be one of:  </p>
+<ul>
+<li>Windows 8.1/8/7/Vista (32-bit and 64-bit).</li>
+<li>Windows XP SP3 (32-bit). </li>
+<li>Windows Server 2008 R2 (64-bit). </li>
+<li>Windows Server 2003 R2 (32-bit). </li>
+</ul>
+<p class="Body">Circuit Design Suite 14.0 does not support Windows NT/Me/98/95/2000, Windows XP x64, or the Windows Server non-R2 editions.  </p>
+
+<p class="Body">Your system must also meet or exceed the following: </p>
+<ul>
+<li>Pentium 4/M class microprocessor or equivalent. </li>
+<li>512 MB of memory (256 MB minimum). </li>
+<li>2 GB of free hard disk space.  </li>
+<li>1024 x 768 screen resolution. </li>
+<li>To develop custom LabVIEW-based instruments for use in Multisim, LabVIEW 2013 or 2014 is required.</li>
+</ul>
+
+<h2>NI Circuit Design Suite Drops Support for Microsoft Windows Vista, Windows XP, and Windows Server 2003 in 2016</h2>
+<p class="Body">National Instruments Circuit Design Suite will drop support for Microsoft Windows Vista, Windows XP, and Windows Server 2003 as of July 1, 2016. Versions of Circuit Design Suite that ship after July 1, 2016 will not install or run on Windows Vista, Windows XP, or Windows Server 2003. For detailed information about Circuit Design Suite's product life cycle, visit <a href="http://ni.com/multisim/whatis/ossupport">NI Multisim OS Support and System Requirements</a>. The information on this page applies to Multisim and Ultiboard. </p>
+
+<h2><a id="install">Installing Circuit Design Suite 14.0</a></h2>
+
+<h3>Installing Multiple Versions</h3>
+
+<p class="Body">Circuit Design Suite 14.0 installs side-by-side with previous versions of Circuit Design Suite. </p>
+
+<h3>Archiving Circuit Design Suite databases</h3>
+<p class="Body">National Instruments recommends that you regularly back up the files created within the Multisim and Ultiboard components of NI Circuit Design Suite. Additionally, you should back up internal files that store user-created data, such as databases. For more information about which files to backup and where to find them, refer to the Help.</p>
+
+<h3>Uninstalling</h3>
+
+<p class="Body">Uninstalling Circuit Design Suite will not remove user data. For more information about the locations of user database and configuration files, refer to the Archiving Data Help topic.</p>
+
+<h3><a name="updates"><span class="instructions">Circuit Design Suite 14.0</span> Updates and Notifications</a></h3>
+
+<p class="Body">National Instruments posts information about critical updates and security notifications on <code>ni.com</code>. Visit <code>ni.com/info</code> and enter Info Code <a href="http://digital.ni.com/express.nsf/bycode/updates">updates</a> to access this information. </p>
+
+
+<h2>Automating the Installation of NI Products</h2>
+<p class="Body">You can automate the installation of most NI products using command-line arguments to suppress some or all of the installer user interface and dialog boxes. However, starting with the August 2012 releases (products using NI Installers version 3.1 or later), you may need to perform additional steps before or during an automatic installation of NI software.</p>
+
+<p class="Body">If the NI product you are installing uses Microsoft .NET 4.0, the .NET installer may run before any NI software installs and may require a reboot before the installation of NI software begins. To avoid a .NET reboot, install .NET 4.0 separately before you install NI software.</p>
+
+<p class="Body">For more information, refer to the following KnowledgeBase articles:</p>
+<ul>
+<li>For more information on silent installations of individual NI products, refer to KB 4CJDP38M, <a href="http://digital.ni.com/express.nsf/bycode/InstallerAutomation">Automating the Installation of a Single Installer</a>.</li>
+<li>For more information on silent installations of suited NI products, such as NI Developer Suite, refer to KB 4GGGDQH0, <a href="http://digital.ni.com/express.nsf/bycode/SuiteInstallerAutomation">Automating the Installation of a Suited Installer</a>.</li>
+<li>To determine what version of NI Installers your product contains, refer to KB 4CJDR18M, <a href="http://digital.ni.com/express.nsf/bycode/InstallerVersion">How Can I Determine the Type and Version of My National Instruments Installer?</a>.</li>
+</ul>
+
+<!-- Windows 8 Support Information-->
+
+<h2>How to Use NI Software with Microsoft Windows 8.<i>x</i></h2>
+
+<p class="Body">When you install National Instruments software on Microsoft Windows 8.<i>x</i>, you will notice a few additional tiles on the Start screen, including shortcuts to NI application software products.</p>
+
+<h3>Using NI Launcher</h3>
+<p class="Body">NI Launcher helps you find and launch installed NI products. It provides you with a method of finding NI products similar to the Start menu in previous versions of Microsoft Windows. To use NI Launcher, click the <strong>NI Launcher</strong> tile on the Start screen. NI Launcher launches the desktop and opens a menu containing a list of NI products. Click any NI product to launch it.</p>
+
+<h3>Pinning Frequently Used Applications</h3>
+<p class="Body">For convenience, you can pin your most-used NI applications to either the Start screen or the Taskbar on the desktop, as necessary:</p>
+<table class="Bordered">
+	<tr><td class="Bordered"><strong>Current Application</strong></td><td class="Bordered"><strong>Icon Location</strong></td><td class="Bordered"><strong>Pin to Action</strong></td></tr>
+	<tr><td class="Bordered">Windows 8 Desktop</td><td class="Bordered">Desktop Taskbar</td><td class="Bordered">Right-click application and select <strong>Pin to Taskbar</strong></td></tr>
+	<tr><td class="Bordered">Windows 8 Desktop</td>
+<td class="Bordered">Start screen</td><td class="Bordered">Right-click application and select <strong>Pin to Start</strong></td></tr>
+	<tr>
+<td class="Bordered">Windows 8 Start screen</td><td class="Bordered">Desktop Taskbar</td><td class="Bordered">Right-click application and select <strong>Pin to taskbar</strong> from the menu bar on the bottom of the screen</td></tr>
+</table>
+
+<h3>Finding All Programs</h3>
+<p class="Body">If you want to find a particular application or related files, such as documentation files, from the Start screen, you can access all installed files by right-clicking anywhere on the Start screen and selecting <strong>All apps</strong>. A list of all installed software and related files appears, in alphabetical order by creator or type.</p>
+
+<p class="Body">For more information about NI support for Windows 8.<i>x</i>, visit <a href="http://ni.com/windows8">ni.com/windows8</a>.</p>
+
+<h2><a name="updates">Product Security  and Critical Updates</a></h2>
+
+<p>Visit <a href="http://www.ni.com/security" target="_blank">ni.com/security</a> to view and subscribe to receive security notifications about National Instruments products. Visit <a href="http://ni.com/critical-updates" target="_blank">ni.com/critical-updates</a> for information about critical updates from National Instruments.</p>
+
+<h2><a id="known">Known Issues</a></h2>
+
+<h3>LabVIEW</h3>
+
+<p class="Body">LabVIEW functionality (LabVIEW instruments and grapher interpolation) will not work if the installation path uses characters that are not native to the "Language for non-Unicode programs" setting, available by selecting <strong>Start&#0187;Control Panel&#0187;Regional and Language Options</strong> and selecting the <strong>Advanced</strong> tab. In the Vista OS, use the "Current language for non-Unicode programs:" setting in the <strong>Administrative</strong> tab. LabVIEW functionality works for Unicode characters that are native to this setting. </p>
+
+
+<h3>Windows Vista</h3>
+
+<p class="Body">You cannot install Circuit Design Suite 14.0 on Windows Vista Starter edition.</p>
+
+
+<h3>Circuit Design Suite</h3>
+
+<p class="Body">Multisim and Ultiboard leak GDI resource handles when used over extended periods of time, eventually leading to unpredictable user interface behavior and crashes. This is an issue with MFC applications running on Windows XP SP2 and Windows Server 2003. For more information and workarounds, refer to <a href="http://digital.ni.com/public.nsf/allkb/E7EC0475F3B2022F8625741A006B4879">KB 4JREGSXL:Multisim or Ultiboard Leaking GDI Resource Handles.</a></p>
+
+
+<h2><a id="bug_fixes">Bug Fixes</a></h2>
+<p class="Body">The following is a subset of the issues fixed since the last release of Circuit Design Suite.</p>
+
+<table class='Bordered'>
+<tr><td class='Bordered' colspan=2><strong>Multisim ( 61 )</strong></td></tr>
+<tr><th class='Bordered'>Bug ID</th><th>Description</th></tr>
+<tr>
+  <td class='Bordered'>518929</td>
+  <td class='Bordered'>Update components sometimes do not detect ELVISmx instruments components from an ELVIS schematic.</td>
+</tr>
+<tr>
+  <td class='Bordered'>517825</td>
+  <td class='Bordered'>Pasting a Title Block will not preserve the field values on multi-page sheet.</td>
+</tr>
+<tr>
+  <td class='Bordered'>514757</td>
+  <td class='Bordered'>Net names with special internal character $ is being allowed to be created, which may cause issues with the netlist.</td>
+</tr>
+<tr>
+  <td class='Bordered'>515526</td>
+  <td class='Bordered'>Importing a .cir file sometimes causes Multisim to crash.</td>
+</tr>
+<tr>
+  <td class='Bordered'>501065</td>
+  <td class='Bordered'>Schematic wires sometimes may appear as connected but in reality are not.</td>
+</tr>
+<tr>
+  <td class='Bordered'>509888</td>
+  <td class='Bordered'>Imported files can sometimes show a component's database location incorrectly.</td>
+</tr>
+<tr>
+  <td class='Bordered'>479149</td>
+  <td class='Bordered'>Unable to change the value for a RLC custom part.</td>
+</tr>
+<tr>
+  <td class='Bordered'>465428</td>
+  <td class='Bordered'>Setting a component value visible will sometimes place the RefDes away from the schematic symbol.</td>
+</tr>
+<tr>
+  <td class='Bordered'>490625</td>
+  <td class='Bordered'>Single pin source changes do not create an undo point.</td>
+</tr>
+<tr>
+  <td class='Bordered'>491624</td>
+  <td class='Bordered'>Modifying values on single pin sources, the SPICE netlist viewer does not get its "out of date" message.</td>
+</tr>
+<tr>
+  <td class='Bordered'>511469</td>
+  <td class='Bordered'>Multisim sometimes does not display correctly a component's value compared to the actual value.</td>
+</tr>
+<tr>
+  <td class='Bordered'>466171</td>
+  <td class='Bordered'>Component Wizard fails to provide all model nodes when line continuations are separated by comment lines.</td>
+</tr>
+<tr>
+  <td class='Bordered'>506416</td>
+  <td class='Bordered'>Replacing some components by hierarchical block or subcircuit within an hierarchical block will sometimes crash Multisim.</td>
+</tr>
+<tr>
+  <td class='Bordered'>504931</td>
+  <td class='Bordered'>Default digital graph color is difficult to see with default background.</td>
+</tr>
+<tr>
+  <td class='Bordered'>274344</td>
+  <td class='Bordered'>Editing a component in database should modify and not create a new component.</td>
+</tr>
+<tr>
+  <td class='Bordered'>493395</td>
+  <td class='Bordered'>SPICE model type is no longer shown in table view for basic RLC device models.</td>
+</tr>
+<tr>
+  <td class='Bordered'>491327</td>
+  <td class='Bordered'>Undo sometimes causes inconsistency between netlist and shematic.</td>
+</tr>
+<tr>
+  <td class='Bordered'>503533</td>
+  <td class='Bordered'>Multisim hangs when scope with normal trigger and non-default trigger value is used.</td>
+</tr>
+<tr>
+  <td class='Bordered'>500035</td>
+  <td class='Bordered'>Cannot use exponential number format in probe parameter values.</td>
+</tr>
+<tr>
+  <td class='Bordered'>368543</td>
+  <td class='Bordered'>Cannot save analysis settings without specifying output variables.</td>
+</tr>
+<tr>
+  <td class='Bordered'>465372</td>
+  <td class='Bordered'>The LVM source generates incorrect negative polarity signal.</td>
+</tr>
+<tr>
+  <td class='Bordered'>274752</td>
+  <td class='Bordered'>Oscillopscope's AC coupling generates a poor result.</td>
+</tr>
+<tr>
+  <td class='Bordered'>479847</td>
+  <td class='Bordered'>Uninstalling 13.0.1 causes an error message next time 12.0.1 is started.</td>
+</tr>
+<tr>
+  <td class='Bordered'>396771</td>
+  <td class='Bordered'>Checking for current sources in series will only check the first two nodes of objects defined in the netlist.</td>
+</tr>
+<tr>
+  <td class='Bordered'>282395</td>
+  <td class='Bordered'>Attribute Device incorrectly repeats attribute Value in non-RLC components.</td>
+</tr>
+<tr>
+  <td class='Bordered'>367605</td>
+  <td class='Bordered'>Adding a new bus line should use net name as its default bus line name.</td>
+</tr>
+<tr>
+  <td class='Bordered'>461943</td>
+  <td class='Bordered'>Non-ideal resistor doesn't behave correctly without brackets around its model expression.</td>
+</tr>
+<tr>
+  <td class='Bordered'>473601</td>
+  <td class='Bordered'>Using Update Components should report any broken connections.</td>
+</tr>
+<tr>
+  <td class='Bordered'>487152</td>
+  <td class='Bordered'>When adding device parameters to analysis setup, unwanted parameters are also added.</td>
+</tr>
+<tr>
+  <td class='Bordered'>478607</td>
+  <td class='Bordered'>Cmod S6 config files are missing internal clock pins.</td>
+</tr>
+<tr>
+  <td class='Bordered'>490907</td>
+  <td class='Bordered'>Renaming a DGND component will not update other DGND instances.</td>
+</tr>
+<tr>
+  <td class='Bordered'>440051</td>
+  <td class='Bordered'>Malconfigured pulse source causes an internal error during simulation.</td>
+</tr>
+<tr>
+  <td class='Bordered'>485982</td>
+  <td class='Bordered'>Hierarchical PLD design sometimes prompts for net name collision continuosly.</td>
+</tr>
+<tr>
+  <td class='Bordered'>488395</td>
+  <td class='Bordered'>Exponential voltage/current source has different behaviour than in PSPICE.</td>
+</tr>
+<tr>
+  <td class='Bordered'>485448</td>
+  <td class='Bordered'>Octave AC sweep disregards logarithmic y axis.</td>
+</tr>
+<tr>
+  <td class='Bordered'>486102</td>
+  <td class='Bordered'>Error mesasge is not clear when simulating with an expression that evaluates a divided by zero value.</td>
+</tr>
+<tr>
+  <td class='Bordered'>403700</td>
+  <td class='Bordered'>LabVIEW microphone instrument is not able to acquire data for more than 10 sec.</td>
+</tr>
+<tr>
+  <td class='Bordered'>274615</td>
+  <td class='Bordered'>Multisim sometimes shows a white screen for a period of time while opening a file.</td>
+</tr>
+<tr>
+  <td class='Bordered'>424840</td>
+  <td class='Bordered'>Component Wizard allows different number of symbol pins in ANSI vs IEC.</td>
+</tr>
+<tr>
+  <td class='Bordered'>467540</td>
+  <td class='Bordered'>Some frequency-domain analyses display seconds as the unit in the simulation status bar.</td>
+</tr>
+<tr>
+  <td class='Bordered'>323705</td>
+  <td class='Bordered'>DMM uses 1e-9ohm series resistor to measure current, which causes convergence issues.</td>
+</tr>
+<tr>
+  <td class='Bordered'>394799</td>
+  <td class='Bordered'>Unable to set the Xilinx path in Multisim for all users using the same computer.</td>
+</tr>
+<tr>
+  <td class='Bordered'>443707</td>
+  <td class='Bordered'>Fourier analysis doesn't display DC component in graph.</td>
+</tr>
+<tr>
+  <td class='Bordered'>393295</td>
+  <td class='Bordered'>Grapher does not appear to handle very small values well and rounds them off to zero.</td>
+</tr>
+<tr>
+  <td class='Bordered'>462216</td>
+  <td class='Bordered'>The grapher's Y-axis marks do not match up with trace values.</td>
+</tr>
+<tr>
+  <td class='Bordered'>480780</td>
+  <td class='Bordered'>AC Phase confined to and jumps between -180 and 180.</td>
+</tr>
+<tr>
+  <td class='Bordered'>478305</td>
+  <td class='Bordered'>RefDes and Value are 'top aligned' when part is rotated in the vertical position.</td>
+</tr>
+<tr>
+  <td class='Bordered'>269360</td>
+  <td class='Bordered'>Pole-zero analysis does not remember the analysis type setting.</td>
+</tr>
+<tr>
+  <td class='Bordered'>465765</td>
+  <td class='Bordered'>Vertical symbol text renders horizontally when placed on schematic.</td>
+</tr>
+<tr>
+  <td class='Bordered'>472570</td>
+  <td class='Bordered'>Triangular current source seems to only reach the peak current on the first period.</td>
+</tr>
+<tr>
+  <td class='Bordered'>469208</td>
+  <td class='Bordered'>Unable to assign a footprint to a component with no footprints, assignment from the spreadsheet no longer works.</td>
+</tr>
+<tr>
+  <td class='Bordered'>195405</td>
+  <td class='Bordered'>No clean way of stopping Wait for Next Output in Multisim COM API.</td>
+</tr>
+<tr>
+  <td class='Bordered'>466133</td>
+  <td class='Bordered'>Logic Converter sometimes crashes when converting an expression to logic circuit.</td>
+</tr>
+<tr>
+  <td class='Bordered'>465748</td>
+  <td class='Bordered'>Simulation slows down after changing parameters on the Function Generator.</td>
+</tr>
+<tr>
+  <td class='Bordered'>465038</td>
+  <td class='Bordered'>Certain symbols from master database are reported as invalid when saving to user database.</td>
+</tr>
+<tr>
+  <td class='Bordered'>347561</td>
+  <td class='Bordered'>The Schematic Statistic Report incorrectly counts each section of a multi-section component as a part.</td>
+</tr>
+<tr>
+  <td class='Bordered'>456597</td>
+  <td class='Bordered'>Components with unmapped model nodes can be saved to database from the model template view without warning.</td>
+</tr>
+<tr>
+  <td class='Bordered'>274318</td>
+  <td class='Bordered'>Placing a component with a user-created footprint will reset it to a default footprint.</td>
+</tr>
+<tr>
+  <td class='Bordered'>456610</td>
+  <td class='Bordered'>Adding a section to a component with custom section names doesn't map all pins.</td>
+</tr>
+<tr>
+  <td class='Bordered'>458840</td>
+  <td class='Bordered'>Copy and paste components to a new design will re-enumerate its refdeses.</td>
+</tr>
+<tr>
+  <td class='Bordered'>459432</td>
+  <td class='Bordered'>PLD components not flagged correctly after saving to database.</td>
+</tr>
+<tr><td class='Bordered' colspan=2><strong>Ultiboard ( 40 )</strong></td></tr>
+<tr><th class='Bordered'>Bug ID</th><th>Description</th></tr>
+<tr>
+  <td class='Bordered'>470546</td>
+  <td class='Bordered'>Importing a DXF file sometimes does not draw the pads correctly.</td>
+</tr>
+<tr>
+  <td class='Bordered'>507801</td>
+  <td class='Bordered'>Ultiboard sometimes places annotated components on top of existing components.</td>
+</tr>
+<tr>
+  <td class='Bordered'>512407</td>
+  <td class='Bordered'>Moving a part around a group of parts object will cause to crash Ultiboard.</td>
+</tr>
+<tr>
+  <td class='Bordered'>480776</td>
+  <td class='Bordered'>Toggling layer visibility for copper stack up layers with micro via placed on them may lead to Multisim crash.</td>
+</tr>
+<tr>
+  <td class='Bordered'>268382</td>
+  <td class='Bordered'>Autorouting of buses should not have vertical trace segments.</td>
+</tr>
+<tr>
+  <td class='Bordered'>275699</td>
+  <td class='Bordered'>Ultiroute incorrectly runs traces over a custom pad shape.</td>
+</tr>
+<tr>
+  <td class='Bordered'>444411</td>
+  <td class='Bordered'>Non-standard fill styles do not work on copper areas that are not power planes.</td>
+</tr>
+<tr>
+  <td class='Bordered'>495370</td>
+  <td class='Bordered'>Ultiboard crashes when follow-me router is used after changing clearance.</td>
+</tr>
+<tr>
+  <td class='Bordered'>274648</td>
+  <td class='Bordered'>Rule precision should not round to significant digits.</td>
+</tr>
+<tr>
+  <td class='Bordered'>320661</td>
+  <td class='Bordered'>The unit dropdown in Global options >> PCB design does not seem to get affected when units are changed from main toolbar control.</td>
+</tr>
+<tr>
+  <td class='Bordered'>266630</td>
+  <td class='Bordered'>Fanout SMD does not work well in BGA packages.</td>
+</tr>
+<tr>
+  <td class='Bordered'>264328</td>
+  <td class='Bordered'>Follow me router violates DRC when auto narrow traces is enabled.</td>
+</tr>
+<tr>
+  <td class='Bordered'>275664</td>
+  <td class='Bordered'>Trace running over a via without copper ring doesn't cause connectivity error.</td>
+</tr>
+<tr>
+  <td class='Bordered'>387633</td>
+  <td class='Bordered'>Duplicate footprint is added to the PCB when a footprint without pin is forward annotated.</td>
+</tr>
+<tr>
+  <td class='Bordered'>443579</td>
+  <td class='Bordered'>Fiducial marks are located incorrectly when text attribute is used outside the board outline.</td>
+</tr>
+<tr>
+  <td class='Bordered'>445863</td>
+  <td class='Bordered'>Text attribute voiding uses larger boundary box when attribute is rotated.</td>
+</tr>
+<tr>
+  <td class='Bordered'>450179</td>
+  <td class='Bordered'>When parts are set to transparent, one can no longer see through parts in 3D view</td>
+</tr>
+<tr>
+  <td class='Bordered'>286414</td>
+  <td class='Bordered'>NC Drill export generates incorrect file due to some decimal points in the coordinate area of the drill.</td>
+</tr>
+<tr>
+  <td class='Bordered'>362253</td>
+  <td class='Bordered'>Attempting to change the RefDes visibility for multiple components will prompt an error message and will still allow to proceed.</td>
+</tr>
+<tr>
+  <td class='Bordered'>440295</td>
+  <td class='Bordered'>Through-hole pad properties window is missing rounded rectangle as an option.</td>
+</tr>
+<tr>
+  <td class='Bordered'>351243</td>
+  <td class='Bordered'>Ultiboard does not show properly when there is a µ in the component's value tag.</td>
+</tr>
+<tr>
+  <td class='Bordered'>445866</td>
+  <td class='Bordered'>Soldermask option in via only allows none or all of the via covered.</td>
+</tr>
+<tr>
+  <td class='Bordered'>284242</td>
+  <td class='Bordered'>Placing a hole does not have a soldermask on the hole by default.</td>
+</tr>
+<tr>
+  <td class='Bordered'>467306</td>
+  <td class='Bordered'>Ultiboard database browser failing to refresh preview and place the selected part.</td>
+</tr>
+<tr>
+  <td class='Bordered'>275527</td>
+  <td class='Bordered'>Net shielding field in Net Edit dialog looses focus during edit.</td>
+</tr>
+<tr>
+  <td class='Bordered'>290268</td>
+  <td class='Bordered'>Cannot add a vertex by simply right clicking on the vertex.</td>
+</tr>
+<tr>
+  <td class='Bordered'>461581</td>
+  <td class='Bordered'>Ultiboard's grab-and-drag layout behaviour is different than Multisim.</td>
+</tr>
+<tr>
+  <td class='Bordered'>263206</td>
+  <td class='Bordered'>Import from Protel sometimes loses via connection.</td>
+</tr>
+<tr>
+  <td class='Bordered'>274339</td>
+  <td class='Bordered'>Grouped components edited via spreadsheet do not undo correctly.</td>
+</tr>
+<tr>
+  <td class='Bordered'>274629</td>
+  <td class='Bordered'>Cannot ungroup multiple group objects at once.</td>
+</tr>
+<tr>
+  <td class='Bordered'>276402</td>
+  <td class='Bordered'>Using the delete Open Trace Ends tool sometimes removes complete connections.</td>
+</tr>
+<tr>
+  <td class='Bordered'>274708</td>
+  <td class='Bordered'>Unknown footprint is sometimes ignored when importing from an older netlist.</td>
+</tr>
+<tr>
+  <td class='Bordered'>324536</td>
+  <td class='Bordered'>Test point sometimes generates an invalid DRC message.</td>
+</tr>
+<tr>
+  <td class='Bordered'>346268</td>
+  <td class='Bordered'>Changing a value in the spreadsheet view sometimes does not update the DRC result tab.</td>
+</tr>
+<tr>
+  <td class='Bordered'>269514</td>
+  <td class='Bordered'>Incorrect pad radius will generate error message when ultiroute is run.</td>
+</tr>
+<tr>
+  <td class='Bordered'>275732</td>
+  <td class='Bordered'>False DRC errors created when placing a net bridge underneath a component.</td>
+</tr>
+<tr>
+  <td class='Bordered'>278859</td>
+  <td class='Bordered'>When replacing a footprint on the design, text attributes sometimes changes unexpectedly.</td>
+</tr>
+<tr>
+  <td class='Bordered'>272973</td>
+  <td class='Bordered'>Router sometimes will not start due to an object in the silkscreen layer.</td>
+</tr>
+<tr>
+  <td class='Bordered'>420397</td>
+  <td class='Bordered'>Cancelling the Gerber-D Import dialog will prompt a invalid warning message.</td>
+</tr>
+<tr>
+  <td class='Bordered'>420320</td>
+  <td class='Bordered'>Net bridges do not export properly to DXF.</td>
+</tr>
+</table>
+
+<h2><a id="newcomponents">New Components</a></h2>
+
+<p class="Body">Refer to the Database section of the Multisim 14.0 Features and Improvements topic of <i>Multisim Help</i> for a list of new components.</p>
+
+<br/>
+
+<hr />
+<h2>Important Information</h2>
+<!--Copyright-->
+<h3>Copyright</h3>
+<p class="Body">&#0169; 2006-2015 National Instruments Corporation. All rights reserved.</p>
+
+<p class="Body">Under the copyright laws, this publication may not be reproduced or transmitted in any form, electronic or mechanical, including photocopying, recording, storing in an information retrieval system, or translating, in whole or in part, without the prior written consent of National Instruments Corporation.</p>
+
+<p class="Body"><strong>End-User License Agreements and Third-Party Legal Notices</strong></p>
+<p class="Body">You can find end-user license agreements (EULAs) and third-party legal notices in the following locations:</p>
+<ul>
+<li>Notices are located in the <span class="Monospace">&lt;National Instruments&gt;\_Legal Information</span> and <span class="Monospace">&lt;National Instruments&gt;</span> directories.</li> 
+<li>EULAs are located in the <span class="Monospace">&lt;National Instruments&gt;\Shared\MDF\Legal\license</span> directory.</li>
+<li>Review <span class="Monospace">&lt;National Instruments&gt;\_Legal Information.txt</span> for information on including legal information in installers built with NI products.</li>
+</ul>
+
+<p><strong>U.S. Government Restricted Rights</strong></p>
+<p>If you are an agency, department, or other entity of the United States Government (&quot;Government&quot;), the use, duplication, reproduction, release, modification, disclosure or transfer of the technical data included in this manual is governed by the Restricted Rights provisions under Federal Acquisition Regulation 52.227-14 for civilian agencies and Defense Federal Acquisition Regulation Supplement Section 252.227-7014 and 252.227-7015 for military agencies.</p>
+
+<p><strong>IVI Foundation Copyright Notice</strong></p>
+
+<p><span class="DNL">Content from the IVI specifications reproduced with permission from the IVI Foundation.</span></p>
+
+<p><span class="DNL">The IVI Foundation and its member companies make no warranty of any kind with regard to this material, including, but not limited to, the implied warranties of merchantability and fitness for a particular purpose. The IVI Foundation and its member companies shall not be liable for errors contained herein or for incidental or consequential damages in connection with the furnishing, performance, or use of this material.</span></p>
+
+<p class="Body"><strong>Trademarks</strong></p>
+
+<p class="Body">Refer to the <em><span class="DNL">NI Trademarks and Logo Guidelines</span></em> at <a href="http://digital.ni.com/express.nsf/bycode/rdtrad" target="_blank"><span class="DNL">ni.com/trademarks</span></a> for information on <span class="DNL">National Instruments</span> trademarks. Other product and company names mentioned herein are trademarks or trade names of their respective companies.</p>
+
+
+<!--Patents-->
+<p class="Body"><strong>Patents</strong></p>
+<p class="Body">For patents covering the National Instruments products/technology, refer to the appropriate location: <strong>Help&#0187;Patents</strong> in your software, the <span class="Monospace">patents.txt</span> file on your media, or the <em>National Instruments Patent Notice</em> at <a href="http://digital.ni.com/express.nsf/bycode/rdlv17" target="_blank">ni.com/patents</a>.</p>
+
+</body>
+</html>
+
+
+
+
